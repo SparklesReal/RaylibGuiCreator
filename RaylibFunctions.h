@@ -2,6 +2,7 @@
 
 #include <raylib.h>
 #include <string>
+#include <unordered_map>
 
 class RaylibFunctionsClass {
 public:
@@ -9,4 +10,5 @@ public:
 	int drawButtonRect(Rectangle rect, std::string text, int size, Color rectangleColor, Color outlineColor, int outlineThickness);
 	Camera2D createCamera();
 	Camera2D updateCamera(Camera2D camera);
+	std::unordered_map<std::string, Texture2D> loadTextures();
 };

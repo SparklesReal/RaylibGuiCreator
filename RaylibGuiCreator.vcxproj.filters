@@ -16,16 +16,22 @@
     <Filter Include="Resource Files\RaylibAdditonalFunctions">
       <UniqueIdentifier>{71aa3de2-e272-4cae-9458-1840f5dd4a3c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Functions">
+      <UniqueIdentifier>{c2056509-3d6a-4a40-99d9-3ee8a84aa328}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="startmenu.cpp">
+    <ClCompile Include="menus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RaylibFunctions.cpp">
       <Filter>Resource Files\RaylibAdditonalFunctions</Filter>
+    </ClCompile>
+    <ClCompile Include="Functions.cpp">
+      <Filter>Resource Files\Functions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -37,6 +43,9 @@
     </ClInclude>
     <ClInclude Include="room.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Functions.h">
+      <Filter>Resource Files\Functions</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

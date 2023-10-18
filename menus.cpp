@@ -2,11 +2,13 @@
 
 #include "RaylibFunctions.h"
 #include "window.h"
+#include "Functions.h"
 
 #include <raylib.h>
 #include <iostream>
 
 RaylibFunctionsClass Functions;
+FunctionClass StringFunctions;
 
 int RoomClass::mainMenu() {
 
@@ -95,14 +97,25 @@ int RoomClass::settingsMenu() {
 int RoomClass::mainRoom() {
 	Camera2D camera = Functions.createCamera();
 
-	Rectangle rectangles[3]{
+	Rectangle rectangles[6]{
 		{ 0, -100, 400, 100 }, // xPos, yPos, RecWidth, RecHeight
 		{ 400, -100, 400, 100 }, 
 		{ 800, -100, 400, 100 },
+		{ 1200, -100, 400, 100 },
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0, 0 }
 	};
 
 	std::string xInput = "", yInput = "";
 	int keyboardInput = 0;
+	std::string posString;
+
+	std::unordered_map<std::string, Texture2D> textureMap = Functions.loadTextures();
+
+	for (const auto & pair : textureMap) {
+		const std::string& key = pair.first;
+		std::cout << key << std::endl;
+	}
 
 	while (getRoomID() == 1) {
 		camera = Functions.updateCamera(camera);
@@ -111,6 +124,7 @@ int RoomClass::mainRoom() {
 		BeginMode2D(camera);
 
 		Functions.drawButtonRect(rectangles[0], "Back", 80, RAYWHITE, GRAY, 10);
+		Functions.drawButtonRect(rectangles[3], "Update", 80, RAYWHITE, GRAY, 10);
 
 		if (xInput == "") // Todo: Better implementation or just move to function to make it look good atleast
 			Functions.drawButtonRect(rectangles[1], "Enter width", 40, RAYWHITE, GRAY, 10);
@@ -150,12 +164,31 @@ int RoomClass::mainRoom() {
 
 					break; // I need more coffee
 
+				case 3:
+					if (IsMouseButtonPressed(0) && StringFunctions.stringIsInt(xInput) && StringFunctions.stringIsInt(yInput))
+						rectangles[4] = {0, 0, std::stof(xInput) + 10, std::stof(yInput) + 10}; // the "+ 10" is to make the rect the right size whilst the outline is 5 thick
+						rectangles[5] = {rectangles[4].x + 5, rectangles[4].y + 5, std::stof(xInput), std::stof(yInput)}; // inner size of the rectangle
+					break;
+
+				case 4:
+					break;
+
+				case 5:
+
+					posString = "X: " + std::to_string(int(GetScreenToWorld2D(GetMousePosition(), camera).x) - 5) + " Y: " + std::to_string(int(GetScreenToWorld2D(GetMousePosition(), camera).y) - 5); // "-5" due to the inner rectangle being offset by 5 from the outside of it
+					EndMode2D();
+					DrawText(posString.c_str(), 0, 0, 50, RAYWHITE); // draw fixed to screen
+					BeginMode2D(camera);
+					break;
+
 				default:
 					std::cout << "The dev needs more coffee also this error should be impossible" << std::endl; // Todo: better error
 					break;
 				}
 			}
 		}
+
+		DrawRectangleLinesEx(rectangles[4], 5, RAYWHITE);
 
 		EndMode2D();
 		EndDrawing();

@@ -2,6 +2,8 @@
 
 #include <raylib.h>
 #include <raymath.h>
+#include <filesystem>
+#include <iostream>
 
 int RaylibFunctionsClass::drawTextRectCenter(Rectangle rect, std::string text, int size) {
 	DrawTextEx(
@@ -44,4 +46,33 @@ Camera2D RaylibFunctionsClass::updateCamera(Camera2D camera) {
 	if (GetMouseWheelMove() > 0)	camera.zoom += 0.05f;
 	if (GetMouseWheelMove() < 0)	camera.zoom -= 0.05f;
 	return camera;
+}
+
+std::unordered_map<std::string, Texture2D> RaylibFunctionsClass::loadTextures() {
+	std::unordered_map<std::string, Texture2D> returnMap;
+
+	std::filesystem::path path{ ".\\textures" };
+
+	if (!std::filesystem::exists(path)) {
+		std::cout << "Could not find textures folder, please create one! \n";
+		return std::unordered_map<std::string, Texture2D>();
+	}
+
+	for (const auto & entry : std::filesystem::directory_iterator(path)) {
+		if (entry.is_regular_file()) {
+			std::string filePath = entry.path().string();
+			std::string fileName = entry.path().filename().string();
+			size_t dotPos = fileName.find_last_of('.');
+
+			if (dotPos != std::string::npos) {
+				std::string fileType = fileName.substr(dotPos + 1);
+				if (fileType == "png") {
+					Texture2D texture = LoadTexture(filePath.c_str());
+					returnMap.insert({ fileName.substr(0, dotPos) , texture });
+				}
+			}
+		}
+	}
+
+	return returnMap;
 }
