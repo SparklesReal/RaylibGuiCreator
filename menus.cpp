@@ -7,7 +7,6 @@
 #include <raylib.h>
 #include <iostream>
 
-RaylibFunctionsClass Functions;
 FunctionClass StringFunctions;
 
 int RoomClass::mainMenu() {
@@ -94,7 +93,7 @@ int RoomClass::settingsMenu() {
 	return 0;
 }
 
-int RoomClass::mainRoom() {
+int RoomClass::mainRoom(std::unordered_map<std::string, Texture2D> textureMap) {
 	Camera2D camera = Functions.createCamera();
 
 	Rectangle rectangles[6]{
@@ -109,13 +108,6 @@ int RoomClass::mainRoom() {
 	std::string xInput = "", yInput = "";
 	int keyboardInput = 0;
 	std::string posString;
-
-	std::unordered_map<std::string, Texture2D> textureMap = Functions.loadTextures();
-
-	for (const auto & pair : textureMap) {
-		const std::string& key = pair.first;
-		std::cout << key << std::endl;
-	}
 
 	while (getRoomID() == 1) {
 		camera = Functions.updateCamera(camera);
@@ -165,9 +157,11 @@ int RoomClass::mainRoom() {
 					break; // I need more coffee
 
 				case 3:
-					if (IsMouseButtonPressed(0) && StringFunctions.stringIsInt(xInput) && StringFunctions.stringIsInt(yInput))
+					if (IsMouseButtonPressed(0) && StringFunctions.stringIsInt(xInput) && StringFunctions.stringIsInt(yInput)) {
 						rectangles[4] = {0, 0, std::stof(xInput) + 10, std::stof(yInput) + 10}; // the "+ 10" is to make the rect the right size whilst the outline is 5 thick
 						rectangles[5] = {rectangles[4].x + 5, rectangles[4].y + 5, std::stof(xInput), std::stof(yInput)}; // inner size of the rectangle
+						textureMap = Functions.reloadTextures(textureMap);
+					}
 					break;
 
 				case 4:

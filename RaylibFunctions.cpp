@@ -33,16 +33,25 @@ Camera2D RaylibFunctionsClass::createCamera() {
 	return camera;
 }
 
-Camera2D RaylibFunctionsClass::updateCamera(Camera2D camera) {
+Camera2D RaylibFunctionsClass::updateCamera(Camera2D camera) { // Todo: System seems to be laggy when going diagonal, try to debug
 	if (IsKeyDown(KEY_R)) {
 		camera.target = Vector2{ 0, -100 };
 		camera.zoom = 1.0f;
 	}
 
-	if (IsKeyDown(KEY_A))			camera.target = Vector2Add(camera.target, Vector2{ -1.0f / camera.zoom, 0.0f });
-	if (IsKeyDown(KEY_D))			camera.target = Vector2Add(camera.target, Vector2{ 1.0f / camera.zoom, 0.0f });
-	if (IsKeyDown(KEY_W))			camera.target = Vector2Add(camera.target, Vector2{ 0.0f, -1.0f / camera.zoom });
-	if (IsKeyDown(KEY_S))			camera.target = Vector2Add(camera.target, Vector2{ 0.0f, 1.0f / camera.zoom });
+	if (IsKeyDown(KEY_A) && IsKeyDown(KEY_W))
+		camera.target = Vector2Add(camera.target, Vector2{ -1.0f / camera.zoom / 2, -1.0f / camera.zoom / 2});
+	else if (IsKeyDown(KEY_A) && IsKeyDown(KEY_S))
+		camera.target = Vector2Add(camera.target, Vector2{ -1.0f / camera.zoom / 2, 1.0f / camera.zoom / 2 });
+	else if (IsKeyDown(KEY_D) && IsKeyDown(KEY_W))
+		camera.target = Vector2Add(camera.target, Vector2{ 1.0f / camera.zoom / 2, -1.0f / camera.zoom / 2 });
+	else if (IsKeyDown(KEY_D) && IsKeyDown(KEY_S))
+		camera.target = Vector2Add(camera.target, Vector2{ 1.0f / camera.zoom / 2, 1.0f / camera.zoom / 2 });
+
+	else if (IsKeyDown(KEY_A))			camera.target = Vector2Add(camera.target, Vector2{ -1.0f / camera.zoom, 0.0f });
+	else if (IsKeyDown(KEY_D))			camera.target = Vector2Add(camera.target, Vector2{ 1.0f / camera.zoom, 0.0f });
+	else if (IsKeyDown(KEY_W))			camera.target = Vector2Add(camera.target, Vector2{ 0.0f, -1.0f / camera.zoom });
+	else if (IsKeyDown(KEY_S))			camera.target = Vector2Add(camera.target, Vector2{ 0.0f, 1.0f / camera.zoom });
 	if (GetMouseWheelMove() > 0)	camera.zoom += 0.05f;
 	if (GetMouseWheelMove() < 0)	camera.zoom -= 0.05f;
 	return camera;
@@ -75,4 +84,17 @@ std::unordered_map<std::string, Texture2D> RaylibFunctionsClass::loadTextures() 
 	}
 
 	return returnMap;
+}
+
+void RaylibFunctionsClass::unloadTextures(std::unordered_map<std::string, Texture2D> textureMap) {
+	for (auto& count: textureMap) {
+		UnloadTexture(count.second);
+	}
+	textureMap.clear();
+}
+
+std::unordered_map<std::string, Texture2D> RaylibFunctionsClass::reloadTextures(std::unordered_map<std::string, Texture2D> textureMap){
+	unloadTextures(textureMap);
+	textureMap = loadTextures();
+	return textureMap;
 }
