@@ -13,7 +13,7 @@ public:
 
 	int mainMenu();
 	int settingsMenu();
-	int mainRoom(std::unordered_map<std::string, Texture2D> textureMap);
+	int mainRoom();
 };
 
 extern RoomClass Room;

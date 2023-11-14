@@ -10,6 +10,7 @@
 WindowClass Window;
 RoomClass Room;
 RaylibFunctionsClass Functions;
+TextureMapClass TextureMap;
 
 int main() {
 	InitWindow(Window.getWidth(), Window.getHeight(), Window.getTitle().c_str());
@@ -17,18 +18,17 @@ int main() {
 		std::cout << "Failed to create window";
 		return 1;
 	}
-	SetWindowState(FLAG_WINDOW_RESIZABLE); // Todo: move this window init and error handeling stuff to a init function
-
-	std::unordered_map<std::string, Texture2D> textureMap = Functions.loadTextures(); // load textures
+	SetWindowState(FLAG_WINDOW_RESIZABLE); // Todo: move this window init and error handling stuff to a init function
+	TextureMap.updateTextureMap(Functions.loadTextures()); // Just to make it load after the window
 
 	while (!WindowShouldClose()) {
-		switch (Room.getRoomID()) { // Todo: make all rooms use the same system, preferebly the case 1: system as then all varibles aren't created outside of the function
+		switch (Room.getRoomID()) { // Todo: make all rooms use the same system, preferably the case 1: system as then all varibles aren't created outside of the function
 		case 0:
 			Room.mainMenu();
 			break;
 
 		case 1:
-			if (Room.mainRoom(textureMap)) // this room is quirky and uses a diffrent system
+			if (Room.mainRoom()) // this room is quirky and uses a different system
 				return 0;
 			break;
 
@@ -37,7 +37,7 @@ int main() {
 			break;
 
 		default:
-			std::cout << "Invalid RoomID aka the developer committed broken code or you where bored and changed the memory" << std::endl;
+			std::cout << "Invalid RoomID aka the developer committed broken code or you were bored and changed the memory" << std::endl;
 			break;
 
 		}

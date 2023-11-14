@@ -1,11 +1,10 @@
 #include "RaylibFunctions.h"
 
-#include <raylib.h>
 #include <raymath.h>
 #include <filesystem>
 #include <iostream>
 
-int RaylibFunctionsClass::drawTextRectCenter(Rectangle rect, std::string text, int size) {
+int RaylibFunctionsClass::drawTextRectCenter(Rectangle rect, std::string text, int size, Color color) {
 	DrawTextEx(
 		GetFontDefault(),
 		text.c_str(), 
@@ -13,16 +12,16 @@ int RaylibFunctionsClass::drawTextRectCenter(Rectangle rect, std::string text, i
 		rect.y + (rect.height - size) / 2},																// yPos + (height - size) / 2 ;note we remove the size / 2 because text prints from the middle of the position
 		size, 
 		10,
-		BLACK);
+		color);
 	return 0;
-}
+} // turn into a void function
 
 int RaylibFunctionsClass::drawButtonRect(Rectangle rect, std::string text, int size, Color rectangleColor, Color outlineColor, int outlineThickness) {
 	DrawRectangleRec(rect, rectangleColor);
 	DrawRectangleLinesEx(rect, outlineThickness, outlineColor);
-	drawTextRectCenter(rect, text, size);
+	drawTextRectCenter(rect, text, size, BLACK);
 	return 0;
-}
+} // turn into a void function
 
 Camera2D RaylibFunctionsClass::createCamera() {
 	Camera2D camera{ 0 };
@@ -57,10 +56,10 @@ Camera2D RaylibFunctionsClass::updateCamera(Camera2D camera) { // Todo: System s
 	return camera;
 }
 
-std::unordered_map<std::string, Texture2D> RaylibFunctionsClass::loadTextures() {
+std::unordered_map<std::string, Texture2D> RaylibFunctionsClass::loadTextures() { //Todo load all files from folders aswell
 	std::unordered_map<std::string, Texture2D> returnMap;
 
-	std::filesystem::path path{ ".\\textures" };
+	std::filesystem::path path{ "./textures" };
 
 	if (!std::filesystem::exists(path)) {
 		std::cout << "Could not find textures folder, please create one! \n";
@@ -86,15 +85,47 @@ std::unordered_map<std::string, Texture2D> RaylibFunctionsClass::loadTextures() 
 	return returnMap;
 }
 
-void RaylibFunctionsClass::unloadTextures(std::unordered_map<std::string, Texture2D> textureMap) {
-	for (auto& count: textureMap) {
-		UnloadTexture(count.second);
-	}
-	textureMap.clear();
+Texture2D* RaylibFunctionsClass::stringToTexture(std::string texture) {
+	return &TextureMap.getTextureMap()->at(texture);
 }
 
-std::unordered_map<std::string, Texture2D> RaylibFunctionsClass::reloadTextures(std::unordered_map<std::string, Texture2D> textureMap){
-	unloadTextures(textureMap);
-	textureMap = loadTextures();
-	return textureMap;
+int RaylibFunctionsClass::getAmountOfPages() {
+	int pages = TextureMap.getTextureMap()->size() / 5;
+	if (TextureMap.getTextureMap()->size() % 5 != 0)
+		pages++;
+	return pages;
+}
+
+std::vector<std::string> RaylibFunctionsClass::getUITextures(int pageNum) {
+	std::vector<std::string> CurrentUI;
+	std::unordered_map<std::string, Texture2D>* textureMap = TextureMap.getTextureMap();
+
+	for (int i = 5 * pageNum - 5; i < 5 * pageNum; i++) {
+		auto it = std::next(textureMap->begin(), i);
+		if (it == textureMap->end())
+			break;
+		CurrentUI.push_back(it->first);
+	}
+	return CurrentUI;
+}
+
+void RaylibFunctionsClass::drawUI(std::vector<std::string> UI, Rectangle UIRects[], size_t arraySize, int pageNum) {
+	for (int i = 0; i < arraySize; i++) {
+		DrawRectangleLinesEx(UIRects[i], 1, RAYWHITE);
+		if (i < TextureMap.getTextureMap()->size()) {
+			int scale;
+
+			if (stringToTexture(UI[i])->height > stringToTexture(UI[i])->width) {
+				scale = 200 / stringToTexture(UI[i])->height;
+			}
+			else {
+				scale = 200 / stringToTexture(UI[i])->width;
+			}
+
+			DrawTextureEx(*stringToTexture(UI[i]), Vector2{ UIRects[i].x + 1, UIRects[i].y + 1}, 0, scale, WHITE);  // Draw a Texture2D with extended parameters
+		}
+	}
+
+	Rectangle belowUI = { 0, 1000, 200, 80 }; // xPos, yPos, RecWidth, RecHeight
+	drawTextRectCenter(belowUI, std::to_string(pageNum) + "/" + std::to_string(getAmountOfPages()), 25, RAYWHITE);
 }

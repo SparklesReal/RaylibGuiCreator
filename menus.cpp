@@ -6,6 +6,7 @@
 
 #include <raylib.h>
 #include <iostream>
+#include <vector>
 
 FunctionClass StringFunctions;
 
@@ -93,7 +94,7 @@ int RoomClass::settingsMenu() {
 	return 0;
 }
 
-int RoomClass::mainRoom(std::unordered_map<std::string, Texture2D> textureMap) {
+int RoomClass::mainRoom() {
 	Camera2D camera = Functions.createCamera();
 
 	Rectangle rectangles[6]{
@@ -105,6 +106,17 @@ int RoomClass::mainRoom(std::unordered_map<std::string, Texture2D> textureMap) {
 		{ 0, 0, 0, 0 }
 	};
 
+	Rectangle UIRects[]{
+		{ 0, 0, 200, 200 }, // xPos, yPos, RecWidth, RecHeight
+		{ 0, 200, 200, 200 },
+		{ 0, 400, 200, 200 },
+		{ 0, 600, 200, 200 },
+		{ 0, 800, 200, 200 }
+	};
+
+	int pageNum = 1;
+	std::vector<std::string> currentUI = Functions.getUITextures(pageNum);
+
 	std::string xInput = "", yInput = "";
 	int keyboardInput = 0;
 	std::string posString;
@@ -113,6 +125,7 @@ int RoomClass::mainRoom(std::unordered_map<std::string, Texture2D> textureMap) {
 		camera = Functions.updateCamera(camera);
 		ClearBackground(BLACK);
 		BeginDrawing();
+		Functions.drawUI(currentUI, UIRects, sizeof(UIRects) / sizeof(UIRects[0]), pageNum);
 		BeginMode2D(camera);
 
 		Functions.drawButtonRect(rectangles[0], "Back", 80, RAYWHITE, GRAY, 10);
@@ -143,7 +156,6 @@ int RoomClass::mainRoom(std::unordered_map<std::string, Texture2D> textureMap) {
 					
 					if (GetKeyPressed() == KEY_BACKSPACE && xInput.size() > 0)
 						xInput.pop_back();
-
 					break;
 
 				case 2:
@@ -153,14 +165,15 @@ int RoomClass::mainRoom(std::unordered_map<std::string, Texture2D> textureMap) {
 
 					if (GetKeyPressed() == KEY_BACKSPACE && yInput.size() > 0)
 						yInput.pop_back();
-
 					break; // I need more coffee
 
 				case 3:
 					if (IsMouseButtonPressed(0) && StringFunctions.stringIsInt(xInput) && StringFunctions.stringIsInt(yInput)) {
 						rectangles[4] = {0, 0, std::stof(xInput) + 10, std::stof(yInput) + 10}; // the "+ 10" is to make the rect the right size whilst the outline is 5 thick
 						rectangles[5] = {rectangles[4].x + 5, rectangles[4].y + 5, std::stof(xInput), std::stof(yInput)}; // inner size of the rectangle
-						textureMap = Functions.reloadTextures(textureMap);
+						TextureMap.reloadTextures(); // for some reason this seems to change the order of the textures, please look in to
+						pageNum = 1;
+						currentUI = Functions.getUITextures(pageNum);
 					}
 					break;
 
@@ -168,15 +181,14 @@ int RoomClass::mainRoom(std::unordered_map<std::string, Texture2D> textureMap) {
 					break;
 
 				case 5:
-
 					posString = "X: " + std::to_string(int(GetScreenToWorld2D(GetMousePosition(), camera).x) - 5) + " Y: " + std::to_string(int(GetScreenToWorld2D(GetMousePosition(), camera).y) - 5); // "-5" due to the inner rectangle being offset by 5 from the outside of it
 					EndMode2D();
-					DrawText(posString.c_str(), 0, 0, 50, RAYWHITE); // draw fixed to screen
+					DrawText(posString.c_str(), 200, 0, 50, RAYWHITE); // draw fixed to screen
 					BeginMode2D(camera);
 					break;
 
 				default:
-					std::cout << "The dev needs more coffee also this error should be impossible" << std::endl; // Todo: better error
+					std::cout << "The dev is stupid also this error should be impossible" << std::endl; // Todo: better error
 					break;
 				}
 			}
@@ -186,7 +198,6 @@ int RoomClass::mainRoom(std::unordered_map<std::string, Texture2D> textureMap) {
 
 		EndMode2D();
 		EndDrawing();
-
 
 		if (WindowShouldClose()) {
 			return 1;
