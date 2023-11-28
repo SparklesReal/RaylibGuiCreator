@@ -16,7 +16,7 @@ public:
 
 	int getAmountOfPages();
 	std::vector<std::string> getUITextures(int pageNum);
-	void drawUI(std::vector<std::string> UI, Rectangle UIRects[], size_t arraySize, int pageNum); // create a better order of the args
+	void drawUI(std::vector<std::string> UI, Rectangle UIRects[], size_t arraySize, int pageNum, Vector2 triangles[6]); // create a better order of the args
 };
 
 extern RaylibFunctionsClass Functions;
@@ -24,6 +24,7 @@ extern RaylibFunctionsClass Functions;
 class TextureMapClass {
 private:
 	std::unordered_map<std::string, Texture2D> textureMap;
+
 public:
 	void updateTextureMap(std::unordered_map<std::string, Texture2D> textureMapArg) { textureMap = textureMapArg; }
 	std::unordered_map<std::string, Texture2D>* getTextureMap() { return &textureMap; }

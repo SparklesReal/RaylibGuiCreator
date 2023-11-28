@@ -56,7 +56,7 @@ Camera2D RaylibFunctionsClass::updateCamera(Camera2D camera) { // Todo: System s
 	return camera;
 }
 
-std::unordered_map<std::string, Texture2D> RaylibFunctionsClass::loadTextures() { //Todo load all files from folders aswell
+std::unordered_map<std::string, Texture2D> RaylibFunctionsClass::loadTextures() { //Todo load all files from folders aswell //Todo change to raylib system :skull:
 	std::unordered_map<std::string, Texture2D> returnMap;
 
 	std::filesystem::path path{ "./textures" };
@@ -97,9 +97,8 @@ int RaylibFunctionsClass::getAmountOfPages() {
 }
 
 std::vector<std::string> RaylibFunctionsClass::getUITextures(int pageNum) {
-	std::vector<std::string> CurrentUI;
+	std::vector<std::string> CurrentUI; // Rename varible
 	std::unordered_map<std::string, Texture2D>* textureMap = TextureMap.getTextureMap();
-
 	for (int i = 5 * pageNum - 5; i < 5 * pageNum; i++) {
 		auto it = std::next(textureMap->begin(), i);
 		if (it == textureMap->end())
@@ -109,23 +108,26 @@ std::vector<std::string> RaylibFunctionsClass::getUITextures(int pageNum) {
 	return CurrentUI;
 }
 
-void RaylibFunctionsClass::drawUI(std::vector<std::string> UI, Rectangle UIRects[], size_t arraySize, int pageNum) {
+void RaylibFunctionsClass::drawUI(std::vector<std::string> UI, Rectangle UIRects[], size_t arraySize, int pageNum, Vector2 triangles[6]) {
 	for (int i = 0; i < arraySize; i++) {
-		DrawRectangleLinesEx(UIRects[i], 1, RAYWHITE);
-		if (i < TextureMap.getTextureMap()->size()) {
-			int scale;
+		if (i == UI.size())
+			break; 
 
+		DrawRectangleLinesEx(UIRects[i], 1, RAYWHITE);
+		if (i * pageNum < TextureMap.getTextureMap()->size()) {
+			int scale;
 			if (stringToTexture(UI[i])->height > stringToTexture(UI[i])->width) {
 				scale = 200 / stringToTexture(UI[i])->height;
 			}
 			else {
 				scale = 200 / stringToTexture(UI[i])->width;
 			}
-
-			DrawTextureEx(*stringToTexture(UI[i]), Vector2{ UIRects[i].x + 1, UIRects[i].y + 1}, 0, scale, WHITE);  // Draw a Texture2D with extended parameters
+			DrawTextureEx(*stringToTexture(UI[i]), Vector2{ UIRects[i].x + 1, UIRects[i].y + 1}, 0, scale, WHITE);
 		}
 	}
 
 	Rectangle belowUI = { 0, 1000, 200, 80 }; // xPos, yPos, RecWidth, RecHeight
 	drawTextRectCenter(belowUI, std::to_string(pageNum) + "/" + std::to_string(getAmountOfPages()), 25, RAYWHITE);
+	DrawTriangle(triangles[0], triangles[1], triangles[2], GRAY);
+	DrawTriangle(triangles[3], triangles[4], triangles[5], GRAY);
 }

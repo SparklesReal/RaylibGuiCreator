@@ -114,6 +114,15 @@ int RoomClass::mainRoom() {
 		{ 0, 800, 200, 200 }
 	};
 
+	Vector2 triangles[6]{
+		{50, 1010},
+		{10, 1040},
+		{50, 1070},
+		{150, 1010},
+		{150, 1070},
+		{190, 1040}
+	};
+
 	int pageNum = 1;
 	std::vector<std::string> currentUI = Functions.getUITextures(pageNum);
 
@@ -125,7 +134,7 @@ int RoomClass::mainRoom() {
 		camera = Functions.updateCamera(camera);
 		ClearBackground(BLACK);
 		BeginDrawing();
-		Functions.drawUI(currentUI, UIRects, sizeof(UIRects) / sizeof(UIRects[0]), pageNum);
+		Functions.drawUI(currentUI, UIRects, sizeof(UIRects) / sizeof(UIRects[0]), pageNum, triangles);
 		BeginMode2D(camera);
 
 		Functions.drawButtonRect(rectangles[0], "Back", 80, RAYWHITE, GRAY, 10);
@@ -142,7 +151,7 @@ int RoomClass::mainRoom() {
 			Functions.drawButtonRect(rectangles[2], yInput, 40, RAYWHITE, GRAY, 10);
 
 		for (int i = 0; i < sizeof(rectangles) / sizeof(rectangles[0]); i++) {
-			if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), rectangles[i])) { // Todo: create a better implementation
+			if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), rectangles[i])) { // Todo: better implementation
 				switch (i) {
 				case 0:
 					if (IsMouseButtonPressed(0))
@@ -192,6 +201,16 @@ int RoomClass::mainRoom() {
 					break;
 				}
 			}
+		}
+
+		if (IsMouseButtonPressed(0)) {
+			if (CheckCollisionPointTriangle(GetMousePosition(), triangles[0], triangles[1], triangles[2]) && pageNum > 1) 
+				pageNum--;
+			
+			if (CheckCollisionPointTriangle(GetMousePosition(), triangles[3], triangles[4], triangles[5]) && pageNum < Functions.getAmountOfPages())
+				pageNum++;
+
+			currentUI = Functions.getUITextures(pageNum);
 		}
 
 		DrawRectangleLinesEx(rectangles[4], 5, RAYWHITE);
