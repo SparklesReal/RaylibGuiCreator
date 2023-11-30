@@ -1,4 +1,5 @@
 #include "RaylibFunctions.h"
+#include "window.h"
 
 #include <raymath.h>
 #include <filesystem>
@@ -130,4 +131,58 @@ void RaylibFunctionsClass::drawUI(std::vector<std::string> UI, Rectangle UIRects
 	drawTextRectCenter(belowUI, std::to_string(pageNum) + "/" + std::to_string(getAmountOfPages()), 25, RAYWHITE);
 	DrawTriangle(triangles[0], triangles[1], triangles[2], GRAY);
 	DrawTriangle(triangles[3], triangles[4], triangles[5], GRAY);
+}
+
+// Gonna code grabby grab system. this is gonna take 5 months atleast :skull: //Oh god I hope this repo never becomes public
+
+void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Rectangle area, Camera2D camera) { // This might be super smart or stupid 
+
+	if (IsMouseButtonReleased(0) && CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), area)) {
+		Texture2D texture = *Functions.stringToTexture(textureHeld);
+		Vector2 mousePos = Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), camera), { 5,5 }); // 5, 5 due to outlie
+		Vector2 vector = Vector2Subtract({ area.width, area.height }, Vector2Add(mousePos, { float(texture.width * scale), float(texture.height * scale) }));
+		if (vector.x > 0 && vector.y > 0) {
+			textureMap.push_back(std::pair<std::string, Vector2>{textureHeld, Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), camera), { 5,5 })}); // 5,5 due to outline // make it a var or something to not need comments
+			scales.push_back(scale);
+		}
+	}
+
+	if (IsMouseButtonUp(0)) {
+		textureHeld = "";
+		scale = 1;
+	}
+
+	if (textureHeld == "" && IsMouseButtonPressed(0)) {
+		for (int i = 0; i < 5; i++) {
+			if (i >= UI.size())
+				break;
+			if (CheckCollisionPointRec(GetMousePosition(), UIRects[i]))
+				textureHeld = UI[i];
+		}
+	}
+
+	if (textureHeld != "") {
+		Texture2D* texture = Functions.stringToTexture(textureHeld);
+		DrawTextureEx(*texture, GetMousePosition(), 0, scale * camera.zoom, RAYWHITE);
+		if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), area)) {
+			Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
+			Rectangle rect{std::round(mousePos.x), std::round(mousePos.y), texture->width * scale, texture->height * scale}; // xPos, yPos, RecWidth, RecHeight
+			BeginMode2D(camera);
+			DrawRectangleLinesEx(rect, 1, RAYWHITE);
+			EndMode2D();
+		}
+	}
+
+	if (IsKeyPressed(KEY_UP))
+		scale += 0.5;
+
+	if (IsKeyPressed(KEY_DOWN) && scale > 0.5)
+		scale -= 0.5;
+
+	BeginMode2D(camera);
+	for (std::size_t i = 0; i < textureMap.size(); i++) {
+		auto it = std::next(textureMap.begin(), i);
+		DrawTextureEx(*Functions.stringToTexture(it->first), { std::round(area.x + it->second.x), std::round(area.y + it->second.y)}, 0, scales[i], RAYWHITE);
+	}
+	EndMode2D();
 }

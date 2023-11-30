@@ -9,6 +9,7 @@
 #include <vector>
 
 FunctionClass StringFunctions;
+DragSystem DragSystem;
 
 int RoomClass::mainMenu() {
 
@@ -204,18 +205,28 @@ int RoomClass::mainRoom() {
 		}
 
 		if (IsMouseButtonPressed(0)) {
-			if (CheckCollisionPointTriangle(GetMousePosition(), triangles[0], triangles[1], triangles[2]) && pageNum > 1) 
-				pageNum--;
-			
-			if (CheckCollisionPointTriangle(GetMousePosition(), triangles[3], triangles[4], triangles[5]) && pageNum < Functions.getAmountOfPages())
-				pageNum++;
+			if (CheckCollisionPointTriangle(GetMousePosition(), triangles[0], triangles[1], triangles[2])) {
+				if (pageNum > 1)
+					pageNum--;
+				else
+					pageNum = Functions.getAmountOfPages();
+		}
+
+			if (CheckCollisionPointTriangle(GetMousePosition(), triangles[3], triangles[4], triangles[5])) {
+				if (pageNum < Functions.getAmountOfPages())
+					pageNum++;
+				else
+					pageNum = 1;
+			}
 
 			currentUI = Functions.getUITextures(pageNum);
 		}
 
+
 		DrawRectangleLinesEx(rectangles[4], 5, RAYWHITE);
 
 		EndMode2D();
+		DragSystem.update(currentUI, UIRects, rectangles[5], camera);
 		EndDrawing();
 
 		if (WindowShouldClose()) {
