@@ -9,13 +9,15 @@
 #include <vector>
 
 FunctionClass StringFunctions;
-DragSystem DragSystem;
+DragSystem Drag;
+FileSystem FileSystem;
 
 int RoomClass::mainMenu() {
 
-	Rectangle rectangles[2]{
+	Rectangle rectangles[3]{
 		{ GetScreenWidth() / 2 - 200, 50, 400, 100 }, // xPos(ScreenWidth/2 - RecWidth/2), yPos, RecWidth, RecHeight
-		{ GetScreenWidth() / 2 - 200, 200, 400, 100 } // xPos(ScreenWidth/2 - RecWidth/2), yPos, RecWidth, RecHeight
+		{ GetScreenWidth() / 2 - 200, 200, 400, 100 },
+		{ GetScreenWidth() / 2 - 200, 350, 400, 100 }
 	};
 	//Rectangles are made in the loop to automatically update the position if the window size would change
 
@@ -24,6 +26,7 @@ int RoomClass::mainMenu() {
 
 	Functions.drawButtonRect(rectangles[0], "Start", 80, RAYWHITE, DARKGRAY, 10);
 	Functions.drawButtonRect(rectangles[1], "Settings", 80, RAYWHITE, DARKGRAY, 10);
+	Functions.drawButtonRect(rectangles[2], "Load GUI", 60, RAYWHITE, DARKGRAY, 10);
 
 	if (IsMouseButtonDown(0)) {
 		for (int i = 0; i < sizeof(rectangles) / sizeof(rectangles[0]); i++) {
@@ -34,6 +37,9 @@ int RoomClass::mainMenu() {
 					break;
 				case 1:
 					Room.setRoomID(2);
+					break;
+				case 2:
+					FileSystem.importFromFile();
 					break;
 				}
 			}
@@ -51,7 +57,7 @@ int RoomClass::settingsMenu() {
 
 	Rectangle rectangles[2]{
 		{ GetScreenWidth() / 2 - 200, 50, 400, 100 }, // xPos(ScreenWidth/2 - RecWidth/2), yPos, RecWidth, RecHeight
-		{ GetScreenWidth() / 2 - 200, 200, 400, 100 } // xPos(ScreenWidth/2 - RecWidth/2), yPos, RecWidth, RecHeight
+		{ GetScreenWidth() / 2 - 200, 200, 400, 100 },
 	};
 
 	ClearBackground(BLACK);
@@ -80,7 +86,7 @@ int RoomClass::settingsMenu() {
 						WaitTime(0.1); // I am too lazy to implement the rect2Pressed for room 0 aka the main menu so to not click on settings directly when pressing back we wait 0.1 seconds (this works somehow and even better than I tought)
 					}
 					break;
-				}
+				}		
 			}
 		}
 	}
@@ -181,7 +187,7 @@ int RoomClass::mainRoom() {
 					if (IsMouseButtonPressed(0) && StringFunctions.stringIsInt(xInput) && StringFunctions.stringIsInt(yInput)) {
 						rectangles[4] = {0, 0, std::stof(xInput) + 10, std::stof(yInput) + 10}; // the "+ 10" is to make the rect the right size whilst the outline is 5 thick
 						rectangles[5] = {rectangles[4].x + 5, rectangles[4].y + 5, std::stof(xInput), std::stof(yInput)}; // inner size of the rectangle
-						TextureMap.reloadTextures(); // for some reason this seems to change the order of the textures, please look in to
+						TextureMap.reloadTextures(); // for some reason this seems to change the order of the textures, please look into
 						pageNum = 1;
 						currentUI = Functions.getUITextures(pageNum);
 					}
@@ -193,7 +199,7 @@ int RoomClass::mainRoom() {
 				case 5:
 					posString = "X: " + std::to_string(int(GetScreenToWorld2D(GetMousePosition(), camera).x) - 5) + " Y: " + std::to_string(int(GetScreenToWorld2D(GetMousePosition(), camera).y) - 5); // "-5" due to the inner rectangle being offset by 5 from the outside of it
 					EndMode2D();
-					DrawText(posString.c_str(), 200, 0, 50, RAYWHITE); // draw fixed to screen
+					DrawText(posString.c_str(), 200, 0, 50, RAYWHITE);
 					BeginMode2D(camera);
 					break;
 
@@ -226,10 +232,11 @@ int RoomClass::mainRoom() {
 		DrawRectangleLinesEx(rectangles[4], 5, RAYWHITE);
 
 		EndMode2D();
-		DragSystem.update(currentUI, UIRects, rectangles[5], camera);
+		Drag.update(currentUI, UIRects, rectangles[5], camera);
 		EndDrawing();
 
 		if (WindowShouldClose()) {
+			FileSystem.exportToFile(rectangles[5]);
 			return 1;
 		}
 	}

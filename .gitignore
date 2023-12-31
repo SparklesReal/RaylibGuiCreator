@@ -368,3 +368,9 @@ FodyWeavers.xsd
 # Ignore CLion builds
 cmake-build-debug/
 cmake-build-release/
+
+# Ignore exports made during tests
+*.gui
+
+# Ignore raylib.dll file used during tests
+*.raylib.dll

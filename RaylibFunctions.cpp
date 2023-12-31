@@ -4,6 +4,7 @@
 #include <raymath.h>
 #include <filesystem>
 #include <iostream>
+#include <fstream>
 
 int RaylibFunctionsClass::drawTextRectCenter(Rectangle rect, std::string text, int size, Color color) {
 	DrawTextEx(
@@ -133,17 +134,52 @@ void RaylibFunctionsClass::drawUI(std::vector<std::string> UI, Rectangle UIRects
 	DrawTriangle(triangles[3], triangles[4], triangles[5], GRAY);
 }
 
+Rectangle RaylibFunctionsClass::drawRightClickMenu(std::string textureString, Vector2* TexturePos, Camera2D* camera, std::vector<std::string> UI, Rectangle UIRects[5]) {
+	Texture2D* texture = stringToTexture(textureString);
+	Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+	Rectangle menuRec{ TexturePos->x + texture->width + 6, TexturePos->y + 6, 23, 48 }; // xPos, yPos, RecWidth, RecHeight
+	Rectangle menuRecOutline{ TexturePos->x + texture->width + 5, TexturePos->y + 5, 25, 50 };
+	BeginMode2D(*camera);
+	DrawRectangleLinesEx(menuRecOutline, 1, GRAY);
+	DrawRectangleRec(menuRec, RAYWHITE);
+
+	Rectangle deleteButton{ menuRec.x, menuRec.y, menuRec.width, 7.5f };
+	DrawRectangleRec(deleteButton, LIGHTGRAY);
+	DrawRectangleLinesEx(deleteButton, 0.5f, RED);
+	DrawTextEx(GetFontDefault(), "Delete", { deleteButton.x + 0.5f, deleteButton.y + 0.5f}, 7, 0.5f, BLACK);
+
+	Rectangle makeButtonButton{ menuRec.x, menuRec.y + deleteButton.height, menuRec.width, 7.5f};
+	DrawRectangleRec(makeButtonButton, LIGHTGRAY);
+	DrawRectangleLinesEx(makeButtonButton, 0.5f, RED);
+	DrawTextEx(GetFontDefault(), "Button", { makeButtonButton.x + 0.5f, makeButtonButton.y + 0.5f }, 7, 0.5f, BLACK);
+	EndMode2D();
+
+	if (CheckCollisionPointRec(mousePos, deleteButton) && IsMouseButtonPressed(0)) {
+		Drag.removeElementByString(textureString);
+	}
+
+	if (CheckCollisionPointRec(mousePos, makeButtonButton) && IsMouseButtonPressed(0)) {
+		Drag.setButton(textureString, UI, UIRects);
+	}
+
+	return menuRecOutline;
+}
+
 // Gonna code grabby grab system. this is gonna take 5 months atleast :skull: //Oh god I hope this repo never becomes public
-
+Rectangle rightClickUI{ 0,0,0,0 }; // This is stupid
+std::string lastTexture = "";
+Vector2 lastTexturePos{ 0, 0 };
 void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Rectangle area, Camera2D camera) { // This might be super smart or stupid 
-
-	if (IsMouseButtonReleased(0) && CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), area)) {
+	if (IsMouseButtonReleased(0) && CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), area) && textureHeld != "") {
 		Texture2D texture = *Functions.stringToTexture(textureHeld);
-		Vector2 mousePos = Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), camera), { 5,5 }); // 5, 5 due to outlie
+		Vector2 mousePos = Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), camera), { 5,5 }); // 5,5 due to outline // make it a var or something to not need comments
+		mousePos.x = std::round(mousePos.x);
+		mousePos.y = std::round(mousePos.y);
 		Vector2 vector = Vector2Subtract({ area.width, area.height }, Vector2Add(mousePos, { float(texture.width * scale), float(texture.height * scale) }));
 		if (vector.x > 0 && vector.y > 0) {
-			textureMap.push_back(std::pair<std::string, Vector2>{textureHeld, Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), camera), { 5,5 })}); // 5,5 due to outline // make it a var or something to not need comments
+			textureMap.push_back(std::pair<std::string, Vector2>{textureHeld, mousePos});
 			scales.push_back(scale);
+			buttonTexture.push_back("N/A");
 		}
 	}
 
@@ -158,6 +194,30 @@ void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Recta
 				break;
 			if (CheckCollisionPointRec(GetMousePosition(), UIRects[i]))
 				textureHeld = UI[i];
+		}
+	}
+
+	if (textureHeld == "" && CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), rightClickUI)) {
+		rightClickUI = Functions.drawRightClickMenu(lastTexture, &lastTexturePos, &camera, UI, UIRects);
+	}
+
+	if (textureHeld != ""  || !CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), rightClickUI)) {
+		rightClickUI = { 0,0,0,0 };
+		lastTexture = "";
+		lastTexturePos = { 0, 0 };
+	}
+
+	if (textureHeld == "" && IsMouseButtonDown(1) && CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), area) ) {
+		for (int i = 0; i < textureMap.size(); i++) {
+			auto it = std::next(textureMap.begin(), i);
+			Texture2D* texture = Functions.stringToTexture(it->first);
+			if (CheckCollisionPointRec({ GetScreenToWorld2D(GetMousePosition(), camera).x - 5, GetScreenToWorld2D(GetMousePosition(), camera).y - 5 }, // I don't know why we do -5, I have been trying with +5 and that mistake costed me 2 hours and my motivation
+										{ it->second.x, it->second.y, float(texture->width), float(texture->height) })) {
+				rightClickUI = Functions.drawRightClickMenu(it->first, &it->second, &camera, UI, UIRects);
+				lastTexture = it->first;
+				lastTexturePos = it->second;
+				break;
+			}
 		}
 	}
 
@@ -185,4 +245,64 @@ void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Recta
 		DrawTextureEx(*Functions.stringToTexture(it->first), { std::round(area.x + it->second.x), std::round(area.y + it->second.y)}, 0, scales[i], RAYWHITE);
 	}
 	EndMode2D();
+} // Wow that only took a day or two
+
+void DragSystem::setButton(std::string texture, std::vector<std::string> UI, Rectangle UIRects[5]) {
+	std::string textureHeld = "";
+	while (textureHeld == "") {
+		if (IsMouseButtonPressed(1)) {
+			for (int i = 0; i < 5; i++) {
+				if (i >= UI.size())
+					break;
+				if (CheckCollisionPointRec(GetMousePosition(), UIRects[i])) {
+					textureHeld = UI[i];
+					break;
+				}
+			}
+		}
+	}
+	auto it = std::find_if(Drag.getTextureMap()->begin(), Drag.getTextureMap()->end(),
+		[&](const auto& pair) { return pair.first == texture; });
+	size_t index = std::distance(textureMap.begin(), it);
+	buttonTexture[index] = textureHeld;
+}
+
+void FileSystem::exportToFile(Rectangle rec) {
+	std::ofstream file;
+	file.open("Export.gui"); // Add system to not edit alredy existing files
+	file << rec.width << ":" << rec.height << std::endl;
+	file << "Frame0:\n";
+	for (int i = 0; i < Drag.mapCount(); i++) {
+		auto it = std::next(Drag.getTextureMap()->begin() , i);
+		if (Drag.getButtonTexture(i)->c_str() == "N/A")
+			file << "\t" << i << ". " << it->first << " - " << it->second.x << "," << it->second.y << " " << ": x" << Drag.getScale(i) << std::endl;
+	}
+	file << "---Buttons---";
+	for (int i = 0; i < Drag.mapCount(); i++) {
+		auto it = std::next(Drag.getTextureMap()->begin(), i);
+		if (Drag.getButtonTexture(i)->c_str() != "N/A")
+			file << "\t" << i << ". " << it->first << " " << Drag.getButtonTexture(i) << " - " << it->second.x << "," << it->second.y << " " << ": x" << Drag.getScale(i) << std::endl;
+	}
+	file.close();
+}
+
+Vector2 FileSystem::importFromFile() {
+	std::ifstream file;
+	file.open("Export.gui"); // Create something to select file
+	std::string line;
+	int i = 0;
+	Vector2 size{ 0,0 };
+	while (std::getline(file, line)) {
+		i++;
+		std::cout << line << std::endl;
+		if (i == 1) {
+			int index = line.find(":");
+			std::string Xstring = line.substr(0, index);
+			std::string Ystring = line.substr(index, line.length());
+			size = { std::stof(Xstring), std::stof(Ystring) };
+		}
+
+	}
+	file.close();
+	return size;
 }
