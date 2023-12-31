@@ -23,17 +23,25 @@ extern RaylibFunctionsClass Functions;
 class DragSystem {
 private:
 	std::string textureHeld;
-	float scale;
+	float scale = 0;
 	std::vector<std::pair<std::string, Vector2>> textureMap;
 	std::vector<float> scales;
 	std::vector<std::string> buttonTexture;
 public:
 	void update(std::vector<std::string> UI, Rectangle UIRects[5], Rectangle area, Camera2D camera);
-	int mapCount() { return textureMap.size(); }
-	std::vector<std::pair<std::string, Vector2>>* getTextureMap() { return &textureMap; }
-	float* getScale(int i) { return &scales[i]; }
-	std::string* getButtonTexture(int i) { return &buttonTexture[i]; }
+	int mapCount()													{ return textureMap.size(); }
+	std::vector<std::pair<std::string, Vector2>>* getTextureMap()	{ return &textureMap; }
+	float* getScale(int i)											{ return &scales[i]; }
+	std::string* getButtonTexture(int i)							{ return &buttonTexture[i]; }
 	void setButton(std::string texture, std::vector<std::string> UI, Rectangle UIRects[5]);
+	
+	void clearMap() {
+		textureHeld.clear();
+		scale = 0;
+		textureMap.clear();
+		scales.clear();
+		buttonTexture.clear();
+	}
 
 	void removeElementByString(const std::string& element) {
 		auto it = std::remove_if(textureMap.begin(), textureMap.end(),

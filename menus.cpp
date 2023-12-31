@@ -161,8 +161,10 @@ int RoomClass::mainRoom() {
 			if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), rectangles[i])) { // Todo: better implementation
 				switch (i) {
 				case 0:
-					if (IsMouseButtonPressed(0))
+					if (IsMouseButtonPressed(0)) {
 						setRoomID(0);
+						Drag.clearMap();
+					}
 					break;
 
 				case 1:
