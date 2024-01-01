@@ -7,17 +7,12 @@
 #include "room.h"
 #include "RaylibFunctions.h"
 
-WindowClass Window;
+ProgramWindowClass Window;
 RoomClass Room;
 RaylibFunctionsClass Functions;
 TextureMapClass TextureMap;
 
 int main() {
-	InitWindow(Window.getWidth(), Window.getHeight(), Window.getTitle().c_str());
-	if (!IsWindowReady) {
-		std::cout << "Failed to create window";
-		return 1;
-	}
 	SetWindowState(FLAG_WINDOW_RESIZABLE); // Todo: move this window init and error handling stuff to a init function
 	TextureMap.updateTextureMap(Functions.loadTextures()); // Just to make it load after the window
 

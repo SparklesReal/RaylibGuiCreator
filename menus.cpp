@@ -73,8 +73,8 @@ int RoomClass::settingsMenu() {
 				case 0:
 					if (rect1Pressed == false) {
 						ToggleFullscreen();
-						Window.setHeight(GetScreenHeight());
-						Window.setWidth(GetScreenWidth());
+						Window.height = GetScreenHeight();
+						Window.width = GetScreenWidth();
 						rect1Pressed = true;
 					}
 					break;
@@ -111,7 +111,7 @@ int RoomClass::mainRoom() {
 		{ 1200, -100, 400, 100 },
 		{ 0, 0, 0, 0 },
 		{ 0, 0, 0, 0 }
-	};
+	}; // Btw this is stupid and super hard to understand and I should just rewrite this but eh
 
 	Rectangle UIRects[]{
 		{ 0, 0, 200, 200 }, // xPos, yPos, RecWidth, RecHeight

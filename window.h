@@ -1,18 +1,26 @@
 #pragma once
 #include <string>
 
-class WindowClass {
-private:
-	std::string title = "GUI creator for Raylib";
-	int width		  = 1920;
-	int height		  = 1080;
+class ProgramWindowClass {
 public:
-	std::string getTitle()	{ return title;  }
-	int getWidth()			{ return width;  }
-	int getHeight()			{ return height; }
+	std::string title = "GUI creator for Raylib";
+	int width;
+	int height;
 
-	void setWidth (int arg)	{ width = arg;  }
-	void setHeight(int arg) { height = arg; }
+	ProgramWindowClass() {
+		width = 1920;
+		height = 1080;
+		InitWindow(width, height, title.c_str());
+	};
+
+	~ProgramWindowClass() {
+		CloseWindow();
+	}
+
+	void updateWindow() {
+		SetWindowTitle(title.c_str());
+		SetWindowSize(width, height);
+	}
 };
 
-extern WindowClass Window;
+extern ProgramWindowClass Window;
