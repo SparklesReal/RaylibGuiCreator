@@ -1,8 +1,7 @@
 #pragma once
-
 #include <string>
 
-class FunctionClass {
-public:
+namespace NormalFunctions {
 	bool stringIsInt(std::string string);
-};
+	size_t findMutipleChar(std::string string, char charToFind, int amount);
+}

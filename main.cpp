@@ -9,12 +9,13 @@
 
 ProgramWindowClass Window;
 RoomClass Room;
+MainRoomClass MainRoom;
 RaylibFunctionsClass Functions;
 TextureMapClass TextureMap;
 
 int main() {
-	SetWindowState(FLAG_WINDOW_RESIZABLE); // Todo: move this window init and error handling stuff to a init function
-	TextureMap.updateTextureMap(Functions.loadTextures()); // Just to make it load after the window
+	SetWindowState(FLAG_WINDOW_RESIZABLE);
+	TextureMap.updateTextureMap(Functions.loadTextures());
 
 	while (!WindowShouldClose()) {
 		switch (Room.getRoomID()) { // Todo: make all rooms use the same system, preferably the case 1: system as then all varibles aren't created outside of the function

@@ -15,5 +15,11 @@ public:
 	int settingsMenu();
 	int mainRoom();
 };
-
 extern RoomClass Room;
+
+class MainRoomClass {
+private:
+public:
+	Vector2 size = Vector2();
+};
+extern MainRoomClass MainRoom;

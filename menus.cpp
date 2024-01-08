@@ -8,7 +8,6 @@
 #include <iostream>
 #include <vector>
 
-FunctionClass StringFunctions;
 DragSystem Drag;
 FileSystem FileSystem;
 
@@ -40,6 +39,7 @@ int RoomClass::mainMenu() {
 					break;
 				case 2:
 					FileSystem.importFromFile();
+					Room.setRoomID(1);
 					break;
 				}
 			}
@@ -109,8 +109,8 @@ int RoomClass::mainRoom() {
 		{ 400, -100, 400, 100 }, 
 		{ 800, -100, 400, 100 },
 		{ 1200, -100, 400, 100 },
-		{ 0, 0, 0, 0 },
-		{ 0, 0, 0, 0 }
+		{ 0, 0, MainRoom.size.x + 10, MainRoom.size.y + 10 },
+		{ rectangles[4].x + 5, rectangles[4].y + 5, MainRoom.size.x, MainRoom.size.y }
 	}; // Btw this is stupid and super hard to understand and I should just rewrite this but eh
 
 	Rectangle UIRects[]{
@@ -141,7 +141,6 @@ int RoomClass::mainRoom() {
 		camera = Functions.updateCamera(camera);
 		ClearBackground(BLACK);
 		BeginDrawing();
-		Functions.drawUI(currentUI, UIRects, sizeof(UIRects) / sizeof(UIRects[0]), pageNum, triangles);
 		BeginMode2D(camera);
 
 		Functions.drawButtonRect(rectangles[0], "Back", 80, RAYWHITE, GRAY, 10);
@@ -186,7 +185,7 @@ int RoomClass::mainRoom() {
 					break; // I need more coffee
 
 				case 3:
-					if (IsMouseButtonPressed(0) && StringFunctions.stringIsInt(xInput) && StringFunctions.stringIsInt(yInput)) {
+					if (IsMouseButtonPressed(0) && NormalFunctions::stringIsInt(xInput) && NormalFunctions::stringIsInt(yInput)) {
 						rectangles[4] = {0, 0, std::stof(xInput) + 10, std::stof(yInput) + 10}; // the "+ 10" is to make the rect the right size whilst the outline is 5 thick
 						rectangles[5] = {rectangles[4].x + 5, rectangles[4].y + 5, std::stof(xInput), std::stof(yInput)}; // inner size of the rectangle
 						TextureMap.reloadTextures(); // for some reason this seems to change the order of the textures, please look into
@@ -235,6 +234,7 @@ int RoomClass::mainRoom() {
 
 		EndMode2D();
 		Drag.update(currentUI, UIRects, rectangles[5], camera);
+		Functions.drawUI(currentUI, UIRects, sizeof(UIRects) / sizeof(UIRects[0]), pageNum, triangles);
 		EndDrawing();
 
 		if (WindowShouldClose()) {
