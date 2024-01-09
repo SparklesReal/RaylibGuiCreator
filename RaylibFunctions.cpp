@@ -128,12 +128,12 @@ void RaylibFunctionsClass::drawUI(std::vector<std::string> UI, Rectangle UIRects
 
 		DrawRectangleLinesEx(UIRects[i], 1, RAYWHITE);
 		if (i * pageNum < TextureMap.getTextureMap()->size()) {
-			int scale;
+			float scale;
 			if (stringToTexture(UI[i])->height > stringToTexture(UI[i])->width) {
-				scale = 200 / stringToTexture(UI[i])->height;
+				scale = 200.0 / stringToTexture(UI[i])->height;
 			}
 			else {
-				scale = 200 / stringToTexture(UI[i])->width;
+				scale = 200.0 / stringToTexture(UI[i])->width;
 			}
 			DrawTextureEx(*stringToTexture(UI[i]), Vector2{ UIRects[i].x + 1, UIRects[i].y + 1}, 0, scale, WHITE);
 		}
