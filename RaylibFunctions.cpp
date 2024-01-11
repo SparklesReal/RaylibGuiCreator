@@ -98,7 +98,7 @@ Texture2D* RaylibFunctionsClass::numToTexture(int num) { // This is stupid I thi
 	auto it = TextureMap.getTextureMap()->begin();
 	std::advance(it, num);
 	if (it != TextureMap.getTextureMap()->end())
-		return Functions.stringToTexture(it->first);
+		return &it->second;
 	return nullptr;
 }
 
@@ -110,15 +110,15 @@ int RaylibFunctionsClass::getAmountOfPages() {
 }
 
 std::vector<std::string> RaylibFunctionsClass::getUITextures(int pageNum) {
-	std::vector<std::string> CurrentUI; // Rename varible
+	std::vector<std::string> UI; // Rename varible // why doe? // Sure UI it is then
 	std::unordered_map<std::string, Texture2D>* textureMap = TextureMap.getTextureMap();
 	for (int i = 5 * pageNum - 5; i < 5 * pageNum; i++) {
 		auto it = std::next(textureMap->begin(), i);
 		if (it == textureMap->end())
 			break;
-		CurrentUI.push_back(it->first);
+		UI.push_back(it->first);
 	}
-	return CurrentUI;
+	return UI;
 }
 
 void RaylibFunctionsClass::drawUI(std::vector<std::string> UI, Rectangle UIRects[], size_t arraySize, int pageNum, Vector2 triangles[6]) {

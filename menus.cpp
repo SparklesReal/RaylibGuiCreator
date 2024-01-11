@@ -188,7 +188,7 @@ int RoomClass::mainRoom() {
 					if (IsMouseButtonPressed(0) && NormalFunctions::stringIsInt(xInput) && NormalFunctions::stringIsInt(yInput)) {
 						rectangles[4] = {0, 0, std::stof(xInput) + 10, std::stof(yInput) + 10}; // the "+ 10" is to make the rect the right size whilst the outline is 5 thick
 						rectangles[5] = {rectangles[4].x + 5, rectangles[4].y + 5, std::stof(xInput), std::stof(yInput)}; // inner size of the rectangle
-						TextureMap.reloadTextures(); // for some reason this seems to change the order of the textures, please look into
+						TextureMap.reloadTextures(); // for some reason this seems to change the order of the textures (only first time), please look into
 						pageNum = 1;
 						currentUI = Functions.getUITextures(pageNum);
 					}
