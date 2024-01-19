@@ -21,12 +21,15 @@ int RaylibFunctionsClass::drawTextRectCenter(Rectangle rect, std::string text, i
 	return 0;
 } // turn into a void function
 
-int RaylibFunctionsClass::drawButtonRect(Rectangle rect, std::string text, int size, Color rectangleColor, Color outlineColor, int outlineThickness) {
+void RaylibFunctionsClass::drawButtonRect(Rectangle rect, std::string text, int size, Color rectangleColor, Color outlineColor, int outlineThickness) {
 	DrawRectangleRec(rect, rectangleColor);
 	DrawRectangleLinesEx(rect, outlineThickness, outlineColor);
 	drawTextRectCenter(rect, text, size, BLACK);
-	return 0;
-} // turn into a void function
+}
+
+void RaylibFunctionsClass::drawButtonRect(ButtonClass *button) {
+	drawButtonRect(button->rect, button->text, button->textSize, button->color, button->outlineColor, button->outlineThickness);
+}
 
 Camera2D RaylibFunctionsClass::createCamera() {
 	Camera2D camera{ 0 };
@@ -37,20 +40,20 @@ Camera2D RaylibFunctionsClass::createCamera() {
 	return camera;
 }
 
-Camera2D RaylibFunctionsClass::updateCamera(Camera2D camera) { // Todo: System seems to be laggy when going diagonal, try to debug
+Camera2D RaylibFunctionsClass::updateCamera(Camera2D camera, float speed) { // Todo: System seems to be laggy when going diagonal, try to debug
 	if (IsKeyDown(KEY_R)) {
 		camera.target = Vector2{ 0, -100 };
 		camera.zoom = 1.0f;
 	}
 
 	if (IsKeyDown(KEY_A) && IsKeyDown(KEY_W))
-		camera.target = Vector2Add(camera.target, Vector2{ -1.0f / camera.zoom / 2, -1.0f / camera.zoom / 2});
+		camera.target = Vector2Add(camera.target, Vector2{ (-1.0f / camera.zoom / 2) * speed, (- 1.0f / camera.zoom / 2) * speed});
 	else if (IsKeyDown(KEY_A) && IsKeyDown(KEY_S))
-		camera.target = Vector2Add(camera.target, Vector2{ -1.0f / camera.zoom / 2, 1.0f / camera.zoom / 2 });
+		camera.target = Vector2Add(camera.target, Vector2{ (-1.0f / camera.zoom / 2) * speed, (1.0f / camera.zoom / 2) * speed});
 	else if (IsKeyDown(KEY_D) && IsKeyDown(KEY_W))
-		camera.target = Vector2Add(camera.target, Vector2{ 1.0f / camera.zoom / 2, -1.0f / camera.zoom / 2 });
+		camera.target = Vector2Add(camera.target, Vector2{ (1.0f / camera.zoom / 2) * speed, (-1.0f / camera.zoom / 2) * speed });
 	else if (IsKeyDown(KEY_D) && IsKeyDown(KEY_S))
-		camera.target = Vector2Add(camera.target, Vector2{ 1.0f / camera.zoom / 2, 1.0f / camera.zoom / 2 });
+		camera.target = Vector2Add(camera.target, Vector2{ (1.0f / camera.zoom / 2) * speed, (1.0f / camera.zoom / 2) * speed });
 
 	else if (IsKeyDown(KEY_A))			camera.target = Vector2Add(camera.target, Vector2{ -1.0f / camera.zoom, 0.0f });
 	else if (IsKeyDown(KEY_D))			camera.target = Vector2Add(camera.target, Vector2{ 1.0f / camera.zoom, 0.0f });
@@ -100,6 +103,39 @@ Texture2D* RaylibFunctionsClass::numToTexture(int num) { // This is stupid I thi
 	if (it != TextureMap.getTextureMap()->end())
 		return &it->second;
 	return nullptr;
+}
+
+void RaylibFunctionsClass::drawButtonMap(std::unordered_map<std::string, ButtonClass> *buttons) {
+	for (int i = 0; i < buttons->size(); i++) {
+		auto it = std::next(buttons->begin(), i);
+		Functions.drawButtonRect(&it->second);
+	}
+}
+
+void RaylibFunctionsClass::updateButtonStates(std::unordered_map<std::string, ButtonClass> *buttons) {
+	for (int i = 0; i < buttons->size(); i++) {
+		auto it = std::next(buttons->begin(), i);
+		if (CheckCollisionPointRec(GetMousePosition(), it->second.rect)) {
+			it->second.state = 1;
+			if (IsMouseButtonPressed(0))
+				it->second.state = 2;
+		}
+		else
+			it->second.state = 0;
+	}
+}
+
+void RaylibFunctionsClass::updateButtonStates(std::unordered_map<std::string, ButtonClass>* buttons, Camera2D camera) {
+	for (int i = 0; i < buttons->size(); i++) {
+		auto it = std::next(buttons->begin(), i);
+		if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), it->second.rect)) {
+			it->second.state = 1;
+			if (IsMouseButtonPressed(0))
+				it->second.state = 2;
+		}
+		else
+			it->second.state = 0;
+	}
 }
 
 int RaylibFunctionsClass::getAmountOfPages() {
@@ -179,6 +215,14 @@ Rectangle RaylibFunctionsClass::drawRightClickMenu(int textureNum, Vector2* Text
 	return menuRecOutline;
 }
 
+Texture2D* DragSystem::getTextureByNum(int num) {
+	auto it = Drag.getTextureMap()->begin();
+	std::advance(it, num);
+	if (it != Drag.getTextureMap()->end())
+		return Functions.stringToTexture(it->first);
+	return nullptr;
+}
+
 // Gonna code grabby grab system. this is gonna take 5 months atleast :skull: //Oh god I hope this repo never becomes public
 Rectangle rightClickUI{ 0,0,0,0 }; // This is stupid
 int lastTexture = 0;
@@ -232,9 +276,10 @@ void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Recta
 	if (textureHeld == "" && IsMouseButtonDown(1) && CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), area) ) {
 		for (int i = 0; i < textureMap.size(); i++) {
 			auto it = std::next(textureMap.begin(), i);
-			Texture2D* texture = Functions.stringToTexture(it->first);
-			if (CheckCollisionPointRec({ GetScreenToWorld2D(GetMousePosition(), camera).x - 5, GetScreenToWorld2D(GetMousePosition(), camera).y - 5 }, // I don't know why we do -5, I have been trying with +5 and that mistake costed me 2 hours and my motivation
-										{ it->second.x, it->second.y, float(texture->width), float(texture->height) })) {
+			Texture2D* texture = Drag.getTextureByNum(i);
+			float scale = getScale(i);
+			if (CheckCollisionPointRec({ GetScreenToWorld2D(GetMousePosition(), camera).x , GetScreenToWorld2D(GetMousePosition(), camera).y },
+										{ it->second.x + 5, it->second.y + 5, float(texture->width * scale), float(texture->height * scale) })) {  // I don't know why we do -5, I have been trying with +5 and that mistake costed me 2 hours and my motivation // well put it at the mouse pos not the rect pos, im dumb // * 1.25 idk why // Tip: don't take textures from the wrong texture map // This is the worst line of code with the most bugs and the most comments, please just delete this the pain I suffered alredy is enough
 				rightClickUI = Functions.drawRightClickMenu(i, &it->second, &camera, UI, UIRects);
 				lastTexture = i;
 				lastTexturePos = it->second;
@@ -261,14 +306,6 @@ void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Recta
 	if (IsKeyPressed(KEY_DOWN) && scale > 0.5)
 		scale -= 0.5;
 } // Wow that only took a day or two
-
-Texture2D* DragSystem::getTextureByNum(int num) {
-	auto it = Drag.getTextureMap()->begin();
-	std::advance(it, num);
-	if (it != Drag.getTextureMap()->end())
-		return Functions.stringToTexture(it->first);
-	return nullptr;
-}
 
 void DragSystem::setButton(int texture, std::vector<std::string> UI, Rectangle UIRects[5]) {
 	std::string textureHeld = "";

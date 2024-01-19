@@ -7,96 +7,91 @@
 #include <raylib.h>
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 
 DragSystem Drag;
 FileSystem FileSystem;
 
 int RoomClass::mainMenu() {
 
-	Rectangle rectangles[3]{
-		{ GetScreenWidth() / 2 - 200, 50, 400, 100 }, // xPos(ScreenWidth/2 - RecWidth/2), yPos, RecWidth, RecHeight
-		{ GetScreenWidth() / 2 - 200, 200, 400, 100 },
-		{ GetScreenWidth() / 2 - 200, 350, 400, 100 }
+	std::unordered_map<std::string, ButtonClass> buttonMap { // Eh array might be better, I don't know how much more memory this uses
+		{ "StartButton", ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 50, 400, 100}, "Start", 80, RAYWHITE, DARKGRAY, 10) },
+		{ "SettingsButton", ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 200, 400, 100}, "Settings", 80, RAYWHITE, DARKGRAY, 10) },
+		{ "LoadGUIButton", ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 350, 400, 100}, "Load GUI", 60, RAYWHITE, DARKGRAY, 10) }
 	};
-	//Rectangles are made in the loop to automatically update the position if the window size would change
 
-	ClearBackground(BLACK);
-	BeginDrawing();
+	while (getRoomID() == 0) {
 
-	Functions.drawButtonRect(rectangles[0], "Start", 80, RAYWHITE, DARKGRAY, 10);
-	Functions.drawButtonRect(rectangles[1], "Settings", 80, RAYWHITE, DARKGRAY, 10);
-	Functions.drawButtonRect(rectangles[2], "Load GUI", 60, RAYWHITE, DARKGRAY, 10);
+		if (IsWindowResized()) {
+			buttonMap.at("StartButton").rect = Rectangle{float(GetScreenWidth()) / 2 - 200, 50, 400, 100};
+			buttonMap.at("SettingsButton").rect = Rectangle{ float(GetScreenWidth()) / 2 - 200, 200, 400, 100 };
+			buttonMap.at("LoadGUIButton").rect = Rectangle{ float(GetScreenWidth()) / 2 - 200, 350, 400, 100 };
+		}
 
-	if (IsMouseButtonDown(0)) {
-		for (int i = 0; i < sizeof(rectangles) / sizeof(rectangles[0]); i++) {
-			if (CheckCollisionPointRec(GetMousePosition(), rectangles[i])) {
-				switch (i) {
-				case 0:
+		ClearBackground(BLACK);
+		BeginDrawing();
+		Functions.drawButtonMap(&buttonMap);
+		EndDrawing();
+
+		Functions.updateButtonStates(&buttonMap);
+		
+		for (int i = 0; i < buttonMap.size(); i++) {
+			auto it = std::next(buttonMap.begin(), i);
+			if (it->second.state == 2) {
+				if (it->first == "StartButton") {
 					Room.setRoomID(1);
 					break;
-				case 1:
+				}
+				if (it->first == "SettingsButton") {
 					Room.setRoomID(2);
 					break;
-				case 2:
+				}
+				if (it->first == "LoadGUIButton") {
 					FileSystem.importFromFile();
 					Room.setRoomID(1);
 					break;
 				}
 			}
 		}
+
 	}
-
-	EndDrawing();
-
 	return 0;
 }
 
-bool rect1Pressed = true, rect2Pressed = true;
-
 int RoomClass::settingsMenu() {
 
-	Rectangle rectangles[2]{
-		{ GetScreenWidth() / 2 - 200, 50, 400, 100 }, // xPos(ScreenWidth/2 - RecWidth/2), yPos, RecWidth, RecHeight
-		{ GetScreenWidth() / 2 - 200, 200, 400, 100 },
+	std::unordered_map<std::string, ButtonClass> buttonMap{ // Eh array might be better, I don't know how much more memory this uses
+		{ "FullscreenButton",	ButtonClass(Rectangle{ float(GetScreenWidth()) / 2 - 200, 50, 400, 100 }, "Fullscreen", 60, RAYWHITE, DARKGRAY, 10) },
+		{ "BackButton",			ButtonClass(Rectangle{ float(GetScreenWidth()) / 2 - 200, 400, 400, 100 }, "Back", 80, RAYWHITE, DARKGRAY, 10) },
 	};
+
+	if (IsWindowResized()) {
+		buttonMap.at("FullscreenButton").rect =	Rectangle{ float(GetScreenWidth()) / 2 - 200, 50, 400, 100 };
+		buttonMap.at("BackButton").rect =			Rectangle{ float(GetScreenWidth()) / 2 - 200, 400, 400, 100 };
+	}
 
 	ClearBackground(BLACK);
 	BeginDrawing();
+	Functions.drawButtonMap(&buttonMap);
+	Functions.updateButtonStates(&buttonMap);
+	EndDrawing();
 
-	Functions.drawButtonRect(rectangles[0], "Fullscreen", 60, RAYWHITE, DARKGRAY, 10);
-	Functions.drawButtonRect(rectangles[1], "Back", 60, RAYWHITE, DARKGRAY, 10);
-
-	if (IsMouseButtonDown(0)) {
-		for (int i = 0; i < sizeof(rectangles) / sizeof(rectangles[0]); i++) {
-			if (CheckCollisionPointRec(GetMousePosition(), rectangles[i])) { // Todo: create functions and remove this nesting and wierd varibles like "rect2Pressed"
-				switch (i) {
-				case 0:
-					if (rect1Pressed == false) {
-						ToggleFullscreen();
-						Window.height = GetScreenHeight();
-						Window.width = GetScreenWidth();
-						rect1Pressed = true;
-					}
-					break;
-
-				case 1:
-					if (rect2Pressed == false) {
-						Room.setRoomID(0);
-						rect2Pressed = true;
-						WaitTime(0.1); // I am too lazy to implement the rect2Pressed for room 0 aka the main menu so to not click on settings directly when pressing back we wait 0.1 seconds (this works somehow and even better than I tought)
-					}
-					break;
-				}		
+	for (int i = 0; i < buttonMap.size(); i++) {
+		auto it = std::next(buttonMap.begin(), i);
+		if (it->second.state == 2) {
+			if (it->first == "FullscreenButton") {
+				ToggleFullscreen();
+				Window.height = GetScreenHeight();
+				Window.width = GetScreenWidth();
+				Window.updateWindow();
+				break;
+			}
+			if (it->first == "BackButton") {
+				Room.setRoomID(0);
+				break;
 			}
 		}
 	}
-
-	if (IsMouseButtonReleased(0)) {
-		rect1Pressed = false;
-		rect2Pressed = false;
-	}
-
-	EndDrawing();
 
 	return 0;
 }
@@ -104,14 +99,19 @@ int RoomClass::settingsMenu() {
 int RoomClass::mainRoom() {
 	Camera2D camera = Functions.createCamera();
 
-	Rectangle rectangles[6]{
-		{ 0, -100, 400, 100 }, // xPos, yPos, RecWidth, RecHeight
-		{ 400, -100, 400, 100 }, 
-		{ 800, -100, 400, 100 },
-		{ 1200, -100, 400, 100 },
-		{ 0, 0, MainRoom.size.x + 10, MainRoom.size.y + 10 },
-		{ rectangles[4].x + 5, rectangles[4].y + 5, MainRoom.size.x, MainRoom.size.y }
-	}; // Btw this is stupid and super hard to understand and I should just rewrite this but eh
+	Rectangle rectangles[2]{
+		{ 0, 0, MainRoom.size.x + 10, MainRoom.size.y + 10 }, // xPos, yPos, RecWidth, RecHeight
+		{ rectangles[0].x + 5, rectangles[0].y + 5, MainRoom.size.x, MainRoom.size.y }
+	}; // Btw this is stupid and super hard to understand and I should just rewrite this but eh // Buttons are rewritten atleast
+
+	std::unordered_map<std::string, ButtonClass> buttonMap{ // Eh array might be better, I don't know how much more memory this uses
+		{ "BackButton",		ButtonClass(Rectangle{ 0, -100, 400, 100 }, "Back", 60, RAYWHITE, DARKGRAY, 10) },
+		{ "xInput",			ButtonClass(Rectangle{ 400, -100, 400, 100 }, "", 40, RAYWHITE, DARKGRAY, 10) },
+		{ "yInput",			ButtonClass(Rectangle{ 800, -100, 400, 100 }, "", 40, RAYWHITE, DARKGRAY, 10) },
+		{ "UpdateButton",	ButtonClass(Rectangle{ 1200, -100, 400, 100 }, "Update", 80, RAYWHITE, DARKGRAY, 10) },
+		{ "SaveButton",		ButtonClass(Rectangle{1600, -100, 400, 100 }, "Save", 80, RAYWHITE, DARKGRAY, 10) },
+		{ "InnerRect",		ButtonClass(rectangles[1], "", 0, RAYWHITE, RAYWHITE, 0) } // Should not be drawn // Hope this does not cause errors due to empty string, 0 in outline, 0 in text size, and stuff
+	}; 
 
 	Rectangle UIRects[]{
 		{ 0, 0, 200, 200 }, // xPos, yPos, RecWidth, RecHeight
@@ -138,74 +138,77 @@ int RoomClass::mainRoom() {
 	std::string posString;
 
 	while (getRoomID() == 1) {
-		camera = Functions.updateCamera(camera);
+		camera = Functions.updateCamera(camera, 2); // System to change the speed (in settings or keybind)
 		ClearBackground(BLACK);
 		BeginDrawing();
 		BeginMode2D(camera);
 
-		Functions.drawButtonRect(rectangles[0], "Back", 80, RAYWHITE, GRAY, 10);
-		Functions.drawButtonRect(rectangles[3], "Update", 80, RAYWHITE, GRAY, 10);
+		Functions.updateButtonStates(&buttonMap, camera);
+		Functions.drawButtonRect(&buttonMap.at("BackButton"));
+		Functions.drawButtonRect(&buttonMap.at("UpdateButton"));
+		Functions.drawButtonRect(&buttonMap.at("SaveButton"));
 
 		if (xInput == "") // Todo: Better implementation or just move to function to make it look good atleast
-			Functions.drawButtonRect(rectangles[1], "Enter width", 40, RAYWHITE, GRAY, 10);
+			buttonMap.at("xInput").text = "Enter width";
 		else 
-			Functions.drawButtonRect(rectangles[1], xInput, 40, RAYWHITE, GRAY, 10);
+			buttonMap.at("xInput").text = xInput;
+		Functions.drawButtonRect(&buttonMap.at("xInput"));
 
 		if (yInput == "")
-			Functions.drawButtonRect(rectangles[2], "Enter height", 40, RAYWHITE, GRAY, 10);
+			buttonMap.at("yInput").text = "Enter height";
 		else
-			Functions.drawButtonRect(rectangles[2], yInput, 40, RAYWHITE, GRAY, 10);
+			buttonMap.at("yInput").text = yInput;
+		Functions.drawButtonRect(&buttonMap.at("yInput"));
 
-		for (int i = 0; i < sizeof(rectangles) / sizeof(rectangles[0]); i++) {
-			if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), rectangles[i])) { // Todo: better implementation
-				switch (i) {
-				case 0:
-					if (IsMouseButtonPressed(0)) {
-						setRoomID(0);
-						Drag.clearMap();
-					}
+		for (int i = 0; i < buttonMap.size(); i++) {
+			auto it = std::next(buttonMap.begin(), i);
+			if (it->second.state != 0) {
+				if (it->first == "BackButton" && it->second.state == 2) {
+					setRoomID(0);
+					Drag.clearMap();
 					break;
+				}
 
-				case 1:
+				if (it->first == "xInput" && it->second.state == 1) {
 					keyboardInput = GetCharPressed();
-					if (MeasureTextEx(GetFontDefault(), xInput.c_str(), 40, 10).x < (rectangles[i].width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline // just make this a function already...
+					if (MeasureTextEx(GetFontDefault(), xInput.c_str(), 40, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline // just make this a function already...
 						xInput += (char(keyboardInput));
-					
-					if (GetKeyPressed() == KEY_BACKSPACE && xInput.size() > 0)
+
+					if (IsKeyDown(KEY_BACKSPACE) && xInput.size() > 0)
 						xInput.pop_back();
 					break;
+				}
 
-				case 2:
+				if (it->first == "yInput" && it->second.state == 1) {
 					keyboardInput = GetCharPressed();
-					if (MeasureTextEx(GetFontDefault(), yInput.c_str(), 40, 10).x < (rectangles[i].width - 40) && keyboardInput != 0 ) // using 10 due to spacing, removing 40 due to outline
+					if (MeasureTextEx(GetFontDefault(), yInput.c_str(), 40, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline
 						yInput += (char(keyboardInput));
 
-					if (GetKeyPressed() == KEY_BACKSPACE && yInput.size() > 0)
+					if (IsKeyDown(KEY_BACKSPACE) && yInput.size() > 0)
 						yInput.pop_back();
-					break; // I need more coffee
+					break;
+				}
 
-				case 3:
-					if (IsMouseButtonPressed(0) && NormalFunctions::stringIsInt(xInput) && NormalFunctions::stringIsInt(yInput)) {
-						rectangles[4] = {0, 0, std::stof(xInput) + 10, std::stof(yInput) + 10}; // the "+ 10" is to make the rect the right size whilst the outline is 5 thick
-						rectangles[5] = {rectangles[4].x + 5, rectangles[4].y + 5, std::stof(xInput), std::stof(yInput)}; // inner size of the rectangle
+				if (it->first == "UpdateButton" && it->second.state == 2) {
+					if (NormalFunctions::stringIsInt(xInput) && NormalFunctions::stringIsInt(yInput)) {
+						rectangles[0] = { 0, 0, std::stof(xInput) + 10, std::stof(yInput) + 10 }; // the "+ 10" is to make the rect the right size whilst the outline is 5 thick
+						rectangles[1] = { rectangles[0].x + 5, rectangles[0].y + 5, std::stof(xInput), std::stof(yInput) }; // inner size of the rectangle
 						TextureMap.reloadTextures(); // for some reason this seems to change the order of the textures (only first time), please look into
 						pageNum = 1;
 						currentUI = Functions.getUITextures(pageNum);
 					}
 					break;
+				}
 
-				case 4:
-					break;
+				if (it->first == "SaveButton" && it->second.state == 2) {
+					FileSystem.exportToFile(rectangles[1]);
+				}
 
-				case 5:
+				if (it->first == "InnerRect" && it->second.state == 1) {
 					posString = "X: " + std::to_string(int(GetScreenToWorld2D(GetMousePosition(), camera).x) - 5) + " Y: " + std::to_string(int(GetScreenToWorld2D(GetMousePosition(), camera).y) - 5); // "-5" due to the inner rectangle being offset by 5 from the outside of it
 					EndMode2D();
 					DrawText(posString.c_str(), 200, 0, 50, RAYWHITE);
 					BeginMode2D(camera);
-					break;
-
-				default:
-					std::cout << "The dev is stupid also this error should be impossible" << std::endl; // Todo: better error
 					break;
 				}
 			}
@@ -230,15 +233,15 @@ int RoomClass::mainRoom() {
 		}
 
 
-		DrawRectangleLinesEx(rectangles[4], 5, RAYWHITE);
+		DrawRectangleLinesEx(rectangles[0], 5, RAYWHITE);
 
 		EndMode2D();
-		Drag.update(currentUI, UIRects, rectangles[5], camera);
+		Drag.update(currentUI, UIRects, rectangles[1], camera);
 		Functions.drawUI(currentUI, UIRects, sizeof(UIRects) / sizeof(UIRects[0]), pageNum, triangles);
 		EndDrawing();
 
 		if (WindowShouldClose()) {
-			FileSystem.exportToFile(rectangles[5]);
+			FileSystem.exportToFile(rectangles[1]);
 			return 1;
 		}
 	}

@@ -20,7 +20,8 @@ int main() {
 	while (!WindowShouldClose()) {
 		switch (Room.getRoomID()) { // Todo: make all rooms use the same system, preferably the case 1: system as then all varibles aren't created outside of the function
 		case 0:
-			Room.mainMenu();
+			if (Room.mainMenu()) // this room is also quirky and uses a different system, wait that means it is the starndad now waow
+				return 0;
 			break;
 
 		case 1:
