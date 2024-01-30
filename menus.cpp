@@ -14,10 +14,13 @@ FileSystem FileSystem;
 
 int RoomClass::mainMenu() {
 
+	std::string GUIFilename = "";
+
 	std::unordered_map<std::string, ButtonClass> buttonMap { // Eh array might be better, I don't know how much more memory this uses
 		{ "StartButton", ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 50, 400, 100}, "Start", 80, RAYWHITE, DARKGRAY, 10) },
 		{ "SettingsButton", ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 200, 400, 100}, "Settings", 80, RAYWHITE, DARKGRAY, 10) },
-		{ "LoadGUIButton", ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 350, 400, 100}, "Load GUI", 60, RAYWHITE, DARKGRAY, 10) }
+		{ "LoadGUIButton", ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 350, 400, 100}, "Load GUI", 60, RAYWHITE, DARKGRAY, 10) },
+		{ "GUIname", ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 500, 400, 100}, "", 20, RAYWHITE, DARKGRAY, 10) }
 	};
 
 	while (getRoomID() == 0) {
@@ -26,7 +29,13 @@ int RoomClass::mainMenu() {
 			buttonMap.at("StartButton").rect = Rectangle{float(GetScreenWidth()) / 2 - 200, 50, 400, 100};
 			buttonMap.at("SettingsButton").rect = Rectangle{ float(GetScreenWidth()) / 2 - 200, 200, 400, 100 };
 			buttonMap.at("LoadGUIButton").rect = Rectangle{ float(GetScreenWidth()) / 2 - 200, 350, 400, 100 };
+			buttonMap.at("GUIname").rect = Rectangle{ float(GetScreenWidth()) / 2 - 200, 500, 400, 100 };
 		}
+
+		if (GUIFilename == "") // Todo: Better implementation or just move to function to make it look good atleast
+			buttonMap.at("GUIname").text = "Enter Filename";
+		else
+			buttonMap.at("GUIname").text = GUIFilename;
 
 		ClearBackground(BLACK);
 		BeginDrawing();
@@ -34,7 +43,7 @@ int RoomClass::mainMenu() {
 		EndDrawing();
 
 		Functions.updateButtonStates(&buttonMap);
-		
+
 		for (int i = 0; i < buttonMap.size(); i++) {
 			auto it = std::next(buttonMap.begin(), i);
 			if (it->second.state == 2) {
@@ -46,11 +55,21 @@ int RoomClass::mainMenu() {
 					Room.setRoomID(2);
 					break;
 				}
-				if (it->first == "LoadGUIButton") {
-					FileSystem.importFromFile();
+				if (it->first == "LoadGUIButton" && GUIFilename != "") {
+					FileSystem.importFromFile(GUIFilename);
 					Room.setRoomID(1);
 					break;
 				}
+			}
+			if (it->first == "GUIname" && it->second.state == 1) {
+				char keyboardInput;
+				keyboardInput = GetCharPressed();
+				if (MeasureTextEx(GetFontDefault(), GUIFilename.c_str(), 20, 10).x < (it->second.rect.width - 20) && keyboardInput != 0)
+					GUIFilename += (char(keyboardInput));
+
+				if (IsKeyDown(KEY_BACKSPACE) && GUIFilename.size() > 0)
+					GUIFilename.pop_back();
+				break;
 			}
 		}
 
@@ -110,6 +129,7 @@ int RoomClass::mainRoom() {
 		{ "yInput",			ButtonClass(Rectangle{ 800, -100, 400, 100 }, "", 40, RAYWHITE, DARKGRAY, 10) },
 		{ "UpdateButton",	ButtonClass(Rectangle{ 1200, -100, 400, 100 }, "Update", 80, RAYWHITE, DARKGRAY, 10) },
 		{ "SaveButton",		ButtonClass(Rectangle{1600, -100, 400, 100 }, "Save", 80, RAYWHITE, DARKGRAY, 10) },
+		{ "SaveName",		ButtonClass(Rectangle{1600, -200, 400, 100 }, "", 40, RAYWHITE, DARKGRAY, 10) },
 		{ "InnerRect",		ButtonClass(rectangles[1], "", 0, RAYWHITE, RAYWHITE, 0) } // Should not be drawn // Hope this does not cause errors due to empty string, 0 in outline, 0 in text size, and stuff
 	}; 
 
@@ -133,7 +153,7 @@ int RoomClass::mainRoom() {
 	int pageNum = 1;
 	std::vector<std::string> currentUI = Functions.getUITextures(pageNum);
 
-	std::string xInput = "", yInput = "";
+	std::string xInput = "", yInput = "", GUISaveName = "";
 	int keyboardInput = 0;
 	std::string posString;
 
@@ -159,6 +179,12 @@ int RoomClass::mainRoom() {
 		else
 			buttonMap.at("yInput").text = yInput;
 		Functions.drawButtonRect(&buttonMap.at("yInput"));
+
+		if (GUISaveName == "")
+			buttonMap.at("SaveName").text = "Enter Save Name";
+		else
+			buttonMap.at("SaveName").text = GUISaveName;
+		Functions.drawButtonRect(&buttonMap.at("SaveName"));
 
 		for (int i = 0; i < buttonMap.size(); i++) {
 			auto it = std::next(buttonMap.begin(), i);
@@ -200,8 +226,18 @@ int RoomClass::mainRoom() {
 					break;
 				}
 
-				if (it->first == "SaveButton" && it->second.state == 2) {
-					FileSystem.exportToFile(rectangles[1]);
+				if (it->first == "SaveName" && it->second.state == 1) {
+					keyboardInput = GetCharPressed();
+					if (MeasureTextEx(GetFontDefault(), GUISaveName.c_str(), 40, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline
+						GUISaveName += (char(keyboardInput));
+
+					if (IsKeyDown(KEY_BACKSPACE) && GUISaveName.size() > 0)
+						GUISaveName.pop_back();
+					break;
+				}
+
+				if (it->first == "SaveButton" && it->second.state == 2 && GUISaveName != "") {
+					FileSystem.exportToFile(rectangles[1], GUISaveName);
 				}
 
 				if (it->first == "InnerRect" && it->second.state == 1) {
@@ -241,7 +277,8 @@ int RoomClass::mainRoom() {
 		EndDrawing();
 
 		if (WindowShouldClose()) {
-			FileSystem.exportToFile(rectangles[1]);
+			std::string saveName = "Autosave";
+			FileSystem.exportToFile(rectangles[1], saveName);
 			return 1;
 		}
 	}

@@ -99,6 +99,6 @@ extern TextureMapClass TextureMap;
 class FileSystem {
 private:
 public:
-	void exportToFile(Rectangle rec);
-	void importFromFile();
+	void exportToFile(Rectangle rec, std::string& filename);
+	void importFromFile(std::string& filename);
 };

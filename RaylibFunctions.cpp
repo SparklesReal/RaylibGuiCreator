@@ -337,9 +337,9 @@ void DragSystem::removeElementByNum(const int num) {
 		buttonTexture.erase(buttonTexture.begin() + num);
 }
 
-void FileSystem::exportToFile(Rectangle rec) {
+void FileSystem::exportToFile(Rectangle rec, std::string& filename) {
 	std::ofstream file;
-	file.open("Export.gui"); // Add system to not edit alredy existing files
+	file.open(filename + ".gui"); // Add system to not edit alredy existing files
 	file << rec.width << ":" << rec.height << std::endl;
 	file << "!!!0:\n";
 	for (int i = 0; i < Drag.mapCount(); i++) {
@@ -356,9 +356,9 @@ void FileSystem::exportToFile(Rectangle rec) {
 	file.close();
 }
 
-void FileSystem::importFromFile() { // move this/create a better loader in RaylibAdditions and include it here instead
+void FileSystem::importFromFile(std::string& filename) { // move this/create a better loader in RaylibAdditions and include it here instead
 	std::ifstream file;
-	file.open("Export.gui"); // Create something to select file
+	file.open(filename + ".gui");
 	std::string line;
 	int i = 0;
 	int currentFrame = 0;
