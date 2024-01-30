@@ -1,7 +1,8 @@
 # RaylibGuiCreator
 A tool to create GUI's for raylib. 
 
-# Note button button is broken for now
+# Notes 
+button button is broken for now
 
 # Notice
 There is an offical GUI create:
