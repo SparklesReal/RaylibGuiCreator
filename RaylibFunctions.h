@@ -5,6 +5,8 @@
 #include <raylib.h>
 #include <string>
 #include <unordered_map>
+#include <vector>
+#include <algorithm>
 
 //This file is a mess
 class RaylibFunctionsClass {
