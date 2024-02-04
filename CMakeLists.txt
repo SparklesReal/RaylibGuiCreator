@@ -13,4 +13,5 @@ endif()
 file(GLOB RAYLIB_SOURCES ${CMAKE_CURRENT_LIST_DIR}/*.cpp)
 
 add_executable(RaylibGuiCreator ${RAYLIB_SOURCES})
-target_link_libraries(RaylibGuiCreator PRIVATE raylib)
+target_include_directories(RaylibGuiCreator PRIVATE ${raylib_INCLUDE_DIRS})
+target_link_libraries(RaylibGuiCreator PRIVATE ${raylib_LIBRARIES})

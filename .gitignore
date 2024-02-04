@@ -374,3 +374,6 @@ cmake-build-release/
 
 # Ignore raylib.dll file used during tests
 raylib.dll
+
+# Ignore built program
+build/
