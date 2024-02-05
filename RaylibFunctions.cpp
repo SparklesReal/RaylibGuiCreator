@@ -249,9 +249,10 @@ void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Recta
 		}
 	}
 
-	if (IsMouseButtonUp(0)) {
+	if (IsMouseButtonReleased(0)) {
 		textureHeld = "";
 		scale = 1;
+		std::cout << "test";
 	}
 
 	if (textureHeld == "" && IsMouseButtonPressed(0)) {
