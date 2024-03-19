@@ -72,9 +72,11 @@ int RoomClass::mainMenu() {
 				break;
 			}
 		}
-
+		if (WindowShouldClose()) {
+			return 0;
+		}
 	}
-	return 0;
+	return 1; // This should not happen
 }
 
 int RoomClass::settingsMenu() {

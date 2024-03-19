@@ -57,21 +57,6 @@ public:
 		buttonTexture.clear();
 	}
 
-	void removeElementByString(const std::string& element) { // This function was dumb from the start and should just be removed
-		auto it = std::remove_if(textureMap.begin(), textureMap.end(),
-			[&](const auto& pair) {
-				return pair.first == element;
-			});
-		size_t index = std::distance(textureMap.begin(), it);
-		textureMap.erase(it, textureMap.end());
-		if (index < scales.size()) {
-			scales.erase(scales.begin() + index);
-		}
-		if (index < buttonTexture.size()) {
-			buttonTexture.erase(buttonTexture.begin() + index);
-		}
-	} // move to RaylibFunctions.cpp
-
 	void removeElementByNum(const int num);
 };
 extern DragSystem Drag;
