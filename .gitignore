@@ -379,3 +379,5 @@ raylib.dll
 build/
 CMakeFiles/
 CMakeCache.txt
+textures/
+RaylibGuiCreator
