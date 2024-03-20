@@ -378,10 +378,17 @@ void FileSystem::importFromFile(std::string& filename) { // move this/create a b
 			MainRoom.size = size;
 			continue;
 		}
-		size_t index = NormalFunctions::findMutipleChar(line, '!', 3);
+		if (i == 3) {
+			if (line != "!!!buttons:")
+				continue;
+			std::cout << "Error: File is empty" << std::endl;
+			return;
+		}
+		size_t index = line.find("!!!");
  		if (index != std::string::npos) {
 			std::string value = line.substr(index, line.length());
-			value = value.substr(0, value.find(':'));
+			std::cout << value;
+			value = value.substr(0, value.find(':') - 1);
 			if (NormalFunctions::stringIsInt(value)) {
 				currentFrame = std::stoi(value); // use later when frame system is in place
 				continue;
@@ -389,6 +396,10 @@ void FileSystem::importFromFile(std::string& filename) { // move this/create a b
 			else if (value == "buttons") {
 				// do stuff
 				continue;
+			} else {
+				std::cout << value;
+				std::cout << "Error: value is not int nor buttons" << std::endl; // Yes I needed this while coding... 
+				return;
 			}
 		}
 		std::string texture = line.substr(line.find(" - ") + 3, line.find(" -- ") - line.find(" - ") - 3);
@@ -403,5 +414,4 @@ void FileSystem::importFromFile(std::string& filename) { // move this/create a b
 	Drag.setScaleArray(scaleVector);
 	Drag.setButtonArray(buttonTexture);
 	file.close();
-
 }
