@@ -75,7 +75,7 @@ int RoomClass::mainMenu() {
 				if (MeasureTextEx(GetFontDefault(), GUIFilename.c_str(), 20, 10).x < (it->second.rect.width - 20) && keyboardInput != 0)
 					GUIFilename += (char(keyboardInput));
 
-				if (IsKeyDown(KEY_BACKSPACE) && GUIFilename.size() > 0)
+				if (IsKeyPressed(KEY_BACKSPACE) && GUIFilename.size() > 0)
 					GUIFilename.pop_back();
 				break;
 			}
@@ -210,7 +210,7 @@ int RoomClass::mainRoom() {
 					if (MeasureTextEx(GetFontDefault(), xInput.c_str(), 40, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline // just make this a function already...
 						xInput += (char(keyboardInput));
 
-					if (IsKeyDown(KEY_BACKSPACE) && xInput.size() > 0)
+					if (IsKeyPressed(KEY_BACKSPACE) && xInput.size() > 0)
 						xInput.pop_back();
 					break;
 				}
@@ -220,7 +220,7 @@ int RoomClass::mainRoom() {
 					if (MeasureTextEx(GetFontDefault(), yInput.c_str(), 40, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline
 						yInput += (char(keyboardInput));
 
-					if (IsKeyDown(KEY_BACKSPACE) && yInput.size() > 0)
+					if (IsKeyPressed(KEY_BACKSPACE) && yInput.size() > 0)
 						yInput.pop_back();
 					break;
 				}
@@ -241,7 +241,7 @@ int RoomClass::mainRoom() {
 					if (MeasureTextEx(GetFontDefault(), GUISaveName.c_str(), 40, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline
 						GUISaveName += (char(keyboardInput));
 
-					if (IsKeyDown(KEY_BACKSPACE) && GUISaveName.size() > 0)
+					if (IsKeyPressed(KEY_BACKSPACE) && GUISaveName.size() > 0)
 						GUISaveName.pop_back();
 					break;
 				}
