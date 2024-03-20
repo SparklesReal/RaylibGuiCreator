@@ -32,7 +32,7 @@ int RoomClass::mainMenu() {
 			buttonMap.at("GUIname").rect = Rectangle{ float(GetScreenWidth()) / 2 - 200, 500, 400, 100 };
 		}
 
-		if (GUIFilename == "") // Todo: Better implementation or just move to function to make it look good atleast
+		if (GUIFilename == "")
 			buttonMap.at("GUIname").text = "Enter Filename";
 		else
 			buttonMap.at("GUIname").text = GUIFilename;
