@@ -357,9 +357,11 @@ void FileSystem::exportToFile(Rectangle rec, std::string& filename) {
 	file.close();
 }
 
-void FileSystem::importFromFile(std::string& filename) { // move this/create a better loader in RaylibAdditions and include it here instead
+bool FileSystem::importFromFile(std::string& filename) { // move this/create a better loader in RaylibAdditions and include it here instead
 	std::ifstream file;
 	file.open(filename + ".gui");
+	if (!file.is_open())
+		return false;
 	std::string line;
 	int i = 0;
 	int currentFrame = 0;
@@ -382,13 +384,13 @@ void FileSystem::importFromFile(std::string& filename) { // move this/create a b
 			if (line != "!!!buttons:")
 				continue;
 			std::cout << "Error: File is empty" << std::endl;
-			return;
+			return false;
 		}
-		size_t index = line.find("!!!");
+		size_t index = line.find("!!!") + 3;
  		if (index != std::string::npos) {
 			std::string value = line.substr(index, line.length());
 			std::cout << value;
-			value = value.substr(0, value.find(':') - 1);
+			value = value.substr(0, value.find(':'));
 			if (NormalFunctions::stringIsInt(value)) {
 				currentFrame = std::stoi(value); // use later when frame system is in place
 				continue;
@@ -397,9 +399,8 @@ void FileSystem::importFromFile(std::string& filename) { // move this/create a b
 				// do stuff
 				continue;
 			} else {
-				std::cout << value;
 				std::cout << "Error: value is not int nor buttons" << std::endl; // Yes I needed this while coding... 
-				return;
+				return false;
 			}
 		}
 		std::string texture = line.substr(line.find(" - ") + 3, line.find(" -- ") - line.find(" - ") - 3);
@@ -414,4 +415,5 @@ void FileSystem::importFromFile(std::string& filename) { // move this/create a b
 	Drag.setScaleArray(scaleVector);
 	Drag.setButtonArray(buttonTexture);
 	file.close();
+	return true;
 }

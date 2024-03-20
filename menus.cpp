@@ -56,7 +56,15 @@ int RoomClass::mainMenu() {
 					break;
 				}
 				if (it->first == "LoadGUIButton" && GUIFilename != "") {
-					FileSystem.importFromFile(GUIFilename);
+					if(!FileSystem.importFromFile(GUIFilename)) {
+						GUIFilename = "";
+						Rectangle rect = Rectangle{(float(GetScreenWidth()) / 2.0) - 200, (float(GetScreenHeight()) / 2.0) - 50, 400, 100};
+						BeginDrawing();
+						Functions.drawButtonRect(rect, "Error: Invalid file", 20, GRAY, RED, 10);
+						EndDrawing();
+						WaitTime(2); // This is dumb, please fix
+						continue;
+					}
 					Room.setRoomID(1);
 					break;
 				}
@@ -88,7 +96,7 @@ int RoomClass::settingsMenu() {
 
 	if (IsWindowResized()) {
 		buttonMap.at("FullscreenButton").rect =	Rectangle{ float(GetScreenWidth()) / 2 - 200, 50, 400, 100 };
-		buttonMap.at("BackButton").rect =			Rectangle{ float(GetScreenWidth()) / 2 - 200, 400, 400, 100 };
+		buttonMap.at("BackButton").rect =		Rectangle{ float(GetScreenWidth()) / 2 - 200, 400, 400, 100 };
 	}
 
 	ClearBackground(BLACK);

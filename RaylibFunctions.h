@@ -87,5 +87,5 @@ class FileSystem {
 private:
 public:
 	void exportToFile(Rectangle rec, std::string& filename);
-	void importFromFile(std::string& filename);
+	bool importFromFile(std::string& filename);
 };
