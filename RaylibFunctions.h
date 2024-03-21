@@ -27,6 +27,7 @@ public:
 	std::vector<std::string> getUITextures(int pageNum);
 	void drawUI(std::vector<std::string> UI, Rectangle UIRects[], size_t arraySize, int pageNum, Vector2 triangles[6]); // create a better order of the args // Remove arraySize use UIRects[5]
 	Rectangle drawRightClickMenu(int textureNum, Vector2* texturePos, Camera2D* camera, std::vector<std::string> UI, Rectangle UIRects[5]); // just make UI global
+	bool allKeysReleased();
 }; // Split UI functions to new class?
 extern RaylibFunctionsClass Functions;
 

@@ -166,9 +166,13 @@ int RoomClass::mainRoom() {
 	std::string xInput = "", yInput = "", GUISaveName = "";
 	int keyboardInput = 0;
 	std::string posString;
+	bool updateCam = true;
 
 	while (getRoomID() == 1) {
-		camera = Functions.updateCamera(camera, 2); // System to change the speed (in settings or keybind)
+		if (!updateCam && Functions.allKeysReleased())
+			updateCam = true;
+		if (updateCam)
+			camera = Functions.updateCamera(camera, 2); // System to change the speed (in settings or keybind)
 		ClearBackground(BLACK);
 		BeginDrawing();
 		BeginMode2D(camera);
@@ -206,8 +210,9 @@ int RoomClass::mainRoom() {
 				}
 
 				if (it->first == "xInput" && it->second.state == 1) {
+					updateCam = false;
 					keyboardInput = GetCharPressed();
-					if (MeasureTextEx(GetFontDefault(), xInput.c_str(), 40, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline // just make this a function already...
+					if (MeasureTextEx(GetFontDefault(), xInput.c_str(), it->second.textSize, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline // just make this a function already...
 						xInput += (char(keyboardInput));
 
 					if (IsKeyPressed(KEY_BACKSPACE) && xInput.size() > 0)
@@ -216,8 +221,9 @@ int RoomClass::mainRoom() {
 				}
 
 				if (it->first == "yInput" && it->second.state == 1) {
+					updateCam = false;
 					keyboardInput = GetCharPressed();
-					if (MeasureTextEx(GetFontDefault(), yInput.c_str(), 40, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline
+					if (MeasureTextEx(GetFontDefault(), yInput.c_str(), it->second.textSize, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline
 						yInput += (char(keyboardInput));
 
 					if (IsKeyPressed(KEY_BACKSPACE) && yInput.size() > 0)
@@ -237,8 +243,9 @@ int RoomClass::mainRoom() {
 				}
 
 				if (it->first == "SaveName" && it->second.state == 1) {
+					updateCam = false;
 					keyboardInput = GetCharPressed();
-					if (MeasureTextEx(GetFontDefault(), GUISaveName.c_str(), 40, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline
+					if (MeasureTextEx(GetFontDefault(), GUISaveName.c_str(), it->second.textSize, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline
 						GUISaveName += (char(keyboardInput));
 
 					if (IsKeyPressed(KEY_BACKSPACE) && GUISaveName.size() > 0)

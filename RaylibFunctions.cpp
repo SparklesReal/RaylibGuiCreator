@@ -1,3 +1,5 @@
+#define MAX_KEYS 512
+
 #include "RaylibFunctions.h"
 
 #include "window.h"
@@ -213,6 +215,14 @@ Rectangle RaylibFunctionsClass::drawRightClickMenu(int textureNum, Vector2* Text
 	}
 
 	return menuRecOutline;
+}
+
+bool RaylibFunctionsClass::allKeysReleased() {
+	for (int i = 0; i < MAX_KEYS; i++) {
+		if (IsKeyDown(i)) 
+			return false;
+	}
+	return true;
 }
 
 Texture2D* DragSystem::getTextureByNum(int num) {
