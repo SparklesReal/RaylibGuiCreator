@@ -81,10 +81,10 @@ int RoomClass::mainMenu() {
 			}
 		}
 		if (WindowShouldClose()) {
-			return 0;
+			return 1;
 		}
 	}
-	return 1; // This should not happen
+	return 0;
 }
 
 int RoomClass::settingsMenu() {
@@ -139,7 +139,7 @@ int RoomClass::mainRoom() {
 		{ "yInput",			ButtonClass(Rectangle{ 800, -100, 400, 100 }, "", 40, RAYWHITE, DARKGRAY, 10) },
 		{ "UpdateButton",	ButtonClass(Rectangle{ 1200, -100, 400, 100 }, "Update", 80, RAYWHITE, DARKGRAY, 10) },
 		{ "SaveButton",		ButtonClass(Rectangle{1600, -100, 400, 100 }, "Save", 80, RAYWHITE, DARKGRAY, 10) },
-		{ "SaveName",		ButtonClass(Rectangle{1600, -200, 400, 100 }, "", 40, RAYWHITE, DARKGRAY, 10) },
+		{ "SaveName",		ButtonClass(Rectangle{1600, -200, 400, 100 }, "", 30, RAYWHITE, DARKGRAY, 10) },
 		{ "InnerRect",		ButtonClass(rectangles[1], "", 0, RAYWHITE, RAYWHITE, 0) } // Should not be drawn // Hope this does not cause errors due to empty string, 0 in outline, 0 in text size, and stuff
 	}; 
 
