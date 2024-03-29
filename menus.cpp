@@ -177,7 +177,8 @@ int RoomClass::mainRoom() {
 		BeginDrawing();
 		BeginMode2D(camera);
 
-		Functions.updateButtonStates(&buttonMap, camera);
+		if(!CheckCollisionPointRec(GetMousePosition(), Rectangle{0, 0, 200, 1080}))
+			Functions.updateButtonStates(&buttonMap, camera);
 		Functions.drawButtonRect(&buttonMap.at("BackButton"));
 		Functions.drawButtonRect(&buttonMap.at("UpdateButton"));
 		Functions.drawButtonRect(&buttonMap.at("SaveButton"));
