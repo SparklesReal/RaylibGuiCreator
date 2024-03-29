@@ -396,9 +396,9 @@ bool FileSystem::importFromFile(std::string& filename) { // move this/create a b
 			std::cout << "Error: File is empty" << std::endl;
 			return false;
 		}
-		size_t index = line.find("!!!") + 3;
- 		if (index != std::string::npos) {
-			std::string value = line.substr(index, line.length());
+		size_t index = line.find("!!!");
+ 		if (index != std::string::npos && index + 3 == 3) {
+			std::string value = line.substr(index + 3, line.length());
 			std::cout << value;
 			value = value.substr(0, value.find(':'));
 			if (NormalFunctions::stringIsInt(value)) {
