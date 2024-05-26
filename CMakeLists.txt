@@ -10,6 +10,9 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 
+set(BUILD_SHARED_LIBS ON)
+set(BUILD_EXAMPLES OFF)
+
 add_subdirectory(extern/raylib)
 include_directories(extern/raylib/src) 
 include_directories(extern/raylib/src/external)
