@@ -27,6 +27,7 @@ public:
 	std::vector<std::string> getUITextures(int pageNum);
 	void drawUI(std::vector<std::string> UI, Rectangle UIRects[], size_t arraySize, int pageNum, Vector2 triangles[6]); // create a better order of the args // Remove arraySize use UIRects[5]
 	Rectangle drawRightClickMenu(int textureNum, Vector2* texturePos, Camera2D* camera, std::vector<std::string> UI, Rectangle UIRects[5]); // just make UI global
+	bool allKeysReleased();
 }; // Split UI functions to new class?
 extern RaylibFunctionsClass Functions;
 
@@ -56,21 +57,6 @@ public:
 		scales.clear();
 		buttonTexture.clear();
 	}
-
-	void removeElementByString(const std::string& element) { // This function was dumb from the start and should just be removed
-		auto it = std::remove_if(textureMap.begin(), textureMap.end(),
-			[&](const auto& pair) {
-				return pair.first == element;
-			});
-		size_t index = std::distance(textureMap.begin(), it);
-		textureMap.erase(it, textureMap.end());
-		if (index < scales.size()) {
-			scales.erase(scales.begin() + index);
-		}
-		if (index < buttonTexture.size()) {
-			buttonTexture.erase(buttonTexture.begin() + index);
-		}
-	} // move to RaylibFunctions.cpp
 
 	void removeElementByNum(const int num);
 };
@@ -102,5 +88,5 @@ class FileSystem {
 private:
 public:
 	void exportToFile(Rectangle rec, std::string& filename);
-	void importFromFile(std::string& filename);
+	bool importFromFile(std::string& filename);
 };

@@ -32,7 +32,7 @@ int RoomClass::mainMenu() {
 			buttonMap.at("GUIname").rect = Rectangle{ float(GetScreenWidth()) / 2 - 200, 500, 400, 100 };
 		}
 
-		if (GUIFilename == "") // Todo: Better implementation or just move to function to make it look good atleast
+		if (GUIFilename == "")
 			buttonMap.at("GUIname").text = "Enter Filename";
 		else
 			buttonMap.at("GUIname").text = GUIFilename;
@@ -56,7 +56,15 @@ int RoomClass::mainMenu() {
 					break;
 				}
 				if (it->first == "LoadGUIButton" && GUIFilename != "") {
-					FileSystem.importFromFile(GUIFilename);
+					if(!FileSystem.importFromFile(GUIFilename)) {
+						GUIFilename = "";
+						Rectangle rect = Rectangle{(float(GetScreenWidth()) / 2.0) - 200, (float(GetScreenHeight()) / 2.0) - 50, 400, 100};
+						BeginDrawing();
+						Functions.drawButtonRect(rect, "Error: Invalid file", 20, GRAY, RED, 10);
+						EndDrawing();
+						WaitTime(2); // This is dumb, please fix
+						continue;
+					}
 					Room.setRoomID(1);
 					break;
 				}
@@ -67,12 +75,14 @@ int RoomClass::mainMenu() {
 				if (MeasureTextEx(GetFontDefault(), GUIFilename.c_str(), 20, 10).x < (it->second.rect.width - 20) && keyboardInput != 0)
 					GUIFilename += (char(keyboardInput));
 
-				if (IsKeyDown(KEY_BACKSPACE) && GUIFilename.size() > 0)
+				if (IsKeyPressed(KEY_BACKSPACE) && GUIFilename.size() > 0)
 					GUIFilename.pop_back();
 				break;
 			}
 		}
-
+		if (WindowShouldClose()) {
+			return 1;
+		}
 	}
 	return 0;
 }
@@ -86,7 +96,7 @@ int RoomClass::settingsMenu() {
 
 	if (IsWindowResized()) {
 		buttonMap.at("FullscreenButton").rect =	Rectangle{ float(GetScreenWidth()) / 2 - 200, 50, 400, 100 };
-		buttonMap.at("BackButton").rect =			Rectangle{ float(GetScreenWidth()) / 2 - 200, 400, 400, 100 };
+		buttonMap.at("BackButton").rect =		Rectangle{ float(GetScreenWidth()) / 2 - 200, 400, 400, 100 };
 	}
 
 	ClearBackground(BLACK);
@@ -129,7 +139,7 @@ int RoomClass::mainRoom() {
 		{ "yInput",			ButtonClass(Rectangle{ 800, -100, 400, 100 }, "", 40, RAYWHITE, DARKGRAY, 10) },
 		{ "UpdateButton",	ButtonClass(Rectangle{ 1200, -100, 400, 100 }, "Update", 80, RAYWHITE, DARKGRAY, 10) },
 		{ "SaveButton",		ButtonClass(Rectangle{1600, -100, 400, 100 }, "Save", 80, RAYWHITE, DARKGRAY, 10) },
-		{ "SaveName",		ButtonClass(Rectangle{1600, -200, 400, 100 }, "", 40, RAYWHITE, DARKGRAY, 10) },
+		{ "SaveName",		ButtonClass(Rectangle{1600, -200, 400, 100 }, "", 30, RAYWHITE, DARKGRAY, 10) },
 		{ "InnerRect",		ButtonClass(rectangles[1], "", 0, RAYWHITE, RAYWHITE, 0) } // Should not be drawn // Hope this does not cause errors due to empty string, 0 in outline, 0 in text size, and stuff
 	}; 
 
@@ -156,14 +166,19 @@ int RoomClass::mainRoom() {
 	std::string xInput = "", yInput = "", GUISaveName = "";
 	int keyboardInput = 0;
 	std::string posString;
+	bool updateCam = true;
 
 	while (getRoomID() == 1) {
-		camera = Functions.updateCamera(camera, 2); // System to change the speed (in settings or keybind)
+		if (!updateCam && Functions.allKeysReleased())
+			updateCam = true;
+		if (updateCam)
+			camera = Functions.updateCamera(camera, 2); // System to change the speed (in settings or keybind)
 		ClearBackground(BLACK);
 		BeginDrawing();
 		BeginMode2D(camera);
 
-		Functions.updateButtonStates(&buttonMap, camera);
+		if(!CheckCollisionPointRec(GetMousePosition(), Rectangle{0, 0, 200, 1080}))
+			Functions.updateButtonStates(&buttonMap, camera);
 		Functions.drawButtonRect(&buttonMap.at("BackButton"));
 		Functions.drawButtonRect(&buttonMap.at("UpdateButton"));
 		Functions.drawButtonRect(&buttonMap.at("SaveButton"));
@@ -196,21 +211,23 @@ int RoomClass::mainRoom() {
 				}
 
 				if (it->first == "xInput" && it->second.state == 1) {
+					updateCam = false;
 					keyboardInput = GetCharPressed();
-					if (MeasureTextEx(GetFontDefault(), xInput.c_str(), 40, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline // just make this a function already...
+					if (MeasureTextEx(GetFontDefault(), xInput.c_str(), it->second.textSize, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline // just make this a function already...
 						xInput += (char(keyboardInput));
 
-					if (IsKeyDown(KEY_BACKSPACE) && xInput.size() > 0)
+					if (IsKeyPressed(KEY_BACKSPACE) && xInput.size() > 0)
 						xInput.pop_back();
 					break;
 				}
 
 				if (it->first == "yInput" && it->second.state == 1) {
+					updateCam = false;
 					keyboardInput = GetCharPressed();
-					if (MeasureTextEx(GetFontDefault(), yInput.c_str(), 40, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline
+					if (MeasureTextEx(GetFontDefault(), yInput.c_str(), it->second.textSize, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline
 						yInput += (char(keyboardInput));
 
-					if (IsKeyDown(KEY_BACKSPACE) && yInput.size() > 0)
+					if (IsKeyPressed(KEY_BACKSPACE) && yInput.size() > 0)
 						yInput.pop_back();
 					break;
 				}
@@ -227,11 +244,12 @@ int RoomClass::mainRoom() {
 				}
 
 				if (it->first == "SaveName" && it->second.state == 1) {
+					updateCam = false;
 					keyboardInput = GetCharPressed();
-					if (MeasureTextEx(GetFontDefault(), GUISaveName.c_str(), 40, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline
+					if (MeasureTextEx(GetFontDefault(), GUISaveName.c_str(), it->second.textSize, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline
 						GUISaveName += (char(keyboardInput));
 
-					if (IsKeyDown(KEY_BACKSPACE) && GUISaveName.size() > 0)
+					if (IsKeyPressed(KEY_BACKSPACE) && GUISaveName.size() > 0)
 						GUISaveName.pop_back();
 					break;
 				}

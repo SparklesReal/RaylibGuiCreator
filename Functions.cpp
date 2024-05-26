@@ -9,12 +9,3 @@ bool NormalFunctions::stringIsInt(std::string string) {
 	}
 	return true;
 }
-
-size_t NormalFunctions::findMutipleChar(std::string string, char charToFind, int amount) { // use .find instead just here to not destroy anything or if I make a improved ver
-	size_t index = string.find_first_of(charToFind);
-	for (int i = 1; i < amount; i++) {
-		if (string.at(index + i) != charToFind)
-			return std::string::npos;
-	}
-	return index + static_cast<size_t>(amount);
-}
