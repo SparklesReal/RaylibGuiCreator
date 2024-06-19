@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <string>
+#include <RaylibAdditions.hpp>
 
 DragSystem Drag;
 
@@ -17,14 +18,14 @@ int RoomClass::mainRoom() {
 		{ rectangles[0].x + 5, rectangles[0].y + 5, MainRoom.size.x, MainRoom.size.y }
 	}; // Btw this is stupid and super hard to understand and I should just rewrite this but eh // Buttons are rewritten atleast
 
-	std::unordered_map<std::string, ButtonClass> buttonMap{ // Eh array might be better, I don't know how much more memory this uses
-		{ "BackButton",		ButtonClass(Rectangle{ 0, -100, 400, 100 }, "Back", 60, RAYWHITE, DARKGRAY, 10) },
-		{ "xInput",			ButtonClass(Rectangle{ 400, -100, 400, 100 }, "", 40, RAYWHITE, DARKGRAY, 10) },
-		{ "yInput",			ButtonClass(Rectangle{ 800, -100, 400, 100 }, "", 40, RAYWHITE, DARKGRAY, 10) },
-		{ "UpdateButton",	ButtonClass(Rectangle{ 1200, -100, 400, 100 }, "Update", 80, RAYWHITE, DARKGRAY, 10) },
-		{ "SaveButton",		ButtonClass(Rectangle{1600, -100, 400, 100 }, "Save", 80, RAYWHITE, DARKGRAY, 10) },
-		{ "SaveName",		ButtonClass(Rectangle{1600, -200, 400, 100 }, "", 30, RAYWHITE, DARKGRAY, 10) },
-		{ "InnerRect",		ButtonClass(rectangles[1], "", 0, RAYWHITE, RAYWHITE, 0) } // Should not be drawn // Hope this does not cause errors due to empty string, 0 in outline, 0 in text size, and stuff
+	std::unordered_map<std::string, RaylibAdditions::ButtonClass> buttonMap{ // Eh array might be better, I don't know how much more memory this uses
+		{ "BackButton",		RaylibAdditions::ButtonClass(Rectangle{ 0, -100, 400, 100 }, "Back", 60, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "xInput",			RaylibAdditions::ButtonClass(Rectangle{ 400, -100, 400, 100 }, "", 40, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "yInput",			RaylibAdditions::ButtonClass(Rectangle{ 800, -100, 400, 100 }, "", 40, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "UpdateButton",	RaylibAdditions::ButtonClass(Rectangle{ 1200, -100, 400, 100 }, "Update", 80, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "SaveButton",		RaylibAdditions::ButtonClass(Rectangle{1600, -100, 400, 100 }, "Save", 80, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "SaveName",		RaylibAdditions::ButtonClass(Rectangle{1600, -200, 400, 100 }, "", 30, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "InnerRect",		RaylibAdditions::ButtonClass(rectangles[1], "", 0, RAYWHITE, RAYWHITE, BLACK, 0, 1) } // Should not be drawn // Hope this does not cause errors due to empty string, 0 in outline, 0 in text size, and stuff
 	}; 
 
 	Rectangle UIRects[]{
@@ -62,28 +63,28 @@ int RoomClass::mainRoom() {
 		BeginMode2D(camera);
 
 		if(!CheckCollisionPointRec(GetMousePosition(), Rectangle{0, 0, 200, 1080}))
-		RaylibFunctions::updateButtonStates(&buttonMap, camera);
-		RaylibFunctions::drawButtonRect(&buttonMap.at("BackButton"));
-		RaylibFunctions::drawButtonRect(&buttonMap.at("UpdateButton"));
-		RaylibFunctions::drawButtonRect(&buttonMap.at("SaveButton"));
+		RaylibAdditions::updateButtonstates(&buttonMap, &camera);
+        RaylibAdditions::drawButton(&buttonMap.at("BackButton"));
+		RaylibAdditions::drawButton(&buttonMap.at("UpdateButton"));
+		RaylibAdditions::drawButton(&buttonMap.at("SaveButton"));
 
 		if (xInput == "") // Todo: Better implementation or just move to function to make it look good atleast
 			buttonMap.at("xInput").text = "Enter width";
 		else 
 			buttonMap.at("xInput").text = xInput;
-		RaylibFunctions::drawButtonRect(&buttonMap.at("xInput"));
+		RaylibAdditions::drawButton(&buttonMap.at("xInput"));
 
 		if (yInput == "")
 			buttonMap.at("yInput").text = "Enter height";
 		else
 			buttonMap.at("yInput").text = yInput;
-		RaylibFunctions::drawButtonRect(&buttonMap.at("yInput"));
+		RaylibAdditions::drawButton(&buttonMap.at("yInput"));
 
 		if (GUISaveName == "")
 			buttonMap.at("SaveName").text = "Enter Save Name";
 		else
 			buttonMap.at("SaveName").text = GUISaveName;
-		RaylibFunctions::drawButtonRect(&buttonMap.at("SaveName"));
+		RaylibAdditions::drawButton(&buttonMap.at("SaveName"));
 
 		for (int i = 0; i < buttonMap.size(); i++) {
 			auto it = std::next(buttonMap.begin(), i);

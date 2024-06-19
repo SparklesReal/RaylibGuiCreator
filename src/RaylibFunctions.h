@@ -10,17 +10,11 @@
 
 //This file is a mess
 namespace RaylibFunctions {
-	int drawTextRectCenter(Rectangle rect, std::string text, int size, Color color); // In RaylibAdditions, ready for swithc to lib
-	void drawButtonRect(Rectangle rect, std::string text, int size, Color rectangleColor, Color outlineColor, int outlineThickness); // In RaylibAdditions, ready for swithc to lib
-	void drawButtonRect(ButtonClass *button); //Rename both to drawButton // In RaylibAdditions, ready for swithc to lib // Love how I misspelled it and just copied it xD
 	Camera2D createCamera();
 	Camera2D updateCamera(Camera2D camera, float speed);
 	std::unordered_map<std::string, Texture2D> loadTextures();
 	Texture2D* stringToTexture(std::string texture);
 	Texture2D* numToTexture(int num);
-	void drawButtonMap(std::unordered_map<std::string, ButtonClass> *buttons); // In RaylibAdditions, ready for swithc to lib
-	void updateButtonStates(std::unordered_map<std::string, ButtonClass>* buttons); // In RaylibAdditions, ready for swithc to lib // In how many places did I copy this...
-	void updateButtonStates(std::unordered_map<std::string, ButtonClass>* buttons, Camera2D camera);
 
 	int getAmountOfPages();
 	std::vector<std::string> getUITextures(int pageNum);

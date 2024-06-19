@@ -6,32 +6,11 @@
 #include "Functions.h"
 #include "menus/room.h"
 
+#include <RaylibAdditions.hpp>
 #include <raymath.h>
 #include <filesystem>
 #include <iostream>
 #include <fstream>
-
-int RaylibFunctions::drawTextRectCenter(Rectangle rect, std::string text, int size, Color color) {
-	DrawTextEx(
-		GetFontDefault(),
-		text.c_str(), 
-		Vector2{ rect.x + (rect.width - MeasureTextEx(GetFontDefault(), text.c_str(), size, 10).x) / 2, // xPos + (width - textWidth) / 2
-		rect.y + (rect.height - size) / 2},																// yPos + (height - size) / 2 ;note we remove the size / 2 because text prints from the middle of the position
-		size, 
-		10,
-		color);
-	return 0;
-} // turn into a void function
-
-void RaylibFunctions::drawButtonRect(Rectangle rect, std::string text, int size, Color rectangleColor, Color outlineColor, int outlineThickness) {
-	DrawRectangleRec(rect, rectangleColor);
-	DrawRectangleLinesEx(rect, outlineThickness, outlineColor);
-	drawTextRectCenter(rect, text, size, BLACK);
-}
-
-void RaylibFunctions::drawButtonRect(ButtonClass *button) {
-	drawButtonRect(button->rect, button->text, button->textSize, button->color, button->outlineColor, button->outlineThickness);
-}
 
 Camera2D RaylibFunctions::createCamera() {
 	Camera2D camera{ 0 };
@@ -107,39 +86,6 @@ Texture2D* RaylibFunctions::numToTexture(int num) { // This is stupid I think cu
 	return nullptr;
 }
 
-void RaylibFunctions::drawButtonMap(std::unordered_map<std::string, ButtonClass> *buttons) {
-	for (int i = 0; i < buttons->size(); i++) {
-		auto it = std::next(buttons->begin(), i);
-		RaylibFunctions::drawButtonRect(&it->second);
-	}
-}
-
-void RaylibFunctions::updateButtonStates(std::unordered_map<std::string, ButtonClass> *buttons) {
-	for (int i = 0; i < buttons->size(); i++) {
-		auto it = std::next(buttons->begin(), i);
-		if (CheckCollisionPointRec(GetMousePosition(), it->second.rect)) {
-			it->second.state = 1;
-			if (IsMouseButtonPressed(0))
-				it->second.state = 2;
-		}
-		else
-			it->second.state = 0;
-	}
-}
-
-void RaylibFunctions::updateButtonStates(std::unordered_map<std::string, ButtonClass>* buttons, Camera2D camera) {
-	for (int i = 0; i < buttons->size(); i++) {
-		auto it = std::next(buttons->begin(), i);
-		if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), it->second.rect)) {
-			it->second.state = 1;
-			if (IsMouseButtonPressed(0))
-				it->second.state = 2;
-		}
-		else
-			it->second.state = 0;
-	}
-}
-
 int RaylibFunctions::getAmountOfPages() {
 	int pages = TextureMap.getTextureMap()->size() / 5;
 	if (TextureMap.getTextureMap()->size() % 5 != 0)
@@ -178,7 +124,8 @@ void RaylibFunctions::drawUI(std::vector<std::string> UI, Rectangle UIRects[], s
 	}
 
 	Rectangle belowUI = { 0, 1000, 200, 80 }; // xPos, yPos, RecWidth, RecHeight
-	drawTextRectCenter(belowUI, std::to_string(pageNum) + "/" + std::to_string(getAmountOfPages()), 25, RAYWHITE);
+	std::string pageString = std::to_string(pageNum) + "/" + std::to_string(getAmountOfPages());
+	RaylibAdditions::drawTextCenterRect(belowUI, pageString, 25, RAYWHITE);
 	DrawTriangle(triangles[0], triangles[1], triangles[2], GRAY);
 	DrawTriangle(triangles[3], triangles[4], triangles[5], GRAY);
 }

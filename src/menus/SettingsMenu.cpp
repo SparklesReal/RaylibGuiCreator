@@ -4,10 +4,12 @@
 #include "../window.h"
 #include "../RaylibFunctions.h"
 
+#include <RaylibAdditions.hpp>
+
 int RoomClass::settingsMenu() {
-	std::unordered_map<std::string, ButtonClass> buttonMap{ // Eh array might be better, I don't know how much more memory this uses
-		{ "FullscreenButton",	ButtonClass(Rectangle{ float(GetScreenWidth()) / 2 - 200, 50, 400, 100 }, "Fullscreen", 60, RAYWHITE, DARKGRAY, 10) },
-		{ "BackButton",			ButtonClass(Rectangle{ float(GetScreenWidth()) / 2 - 200, 400, 400, 100 }, "Back", 80, RAYWHITE, DARKGRAY, 10) },
+	std::unordered_map<std::string, RaylibAdditions::ButtonClass> buttonMap{ // Eh array might be better, I don't know how much more memory this uses
+		{ "FullscreenButton",	RaylibAdditions::ButtonClass(Rectangle{ float(GetScreenWidth()) / 2 - 200, 50, 400, 100 }, "Fullscreen", 60, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "BackButton",			RaylibAdditions::ButtonClass(Rectangle{ float(GetScreenWidth()) / 2 - 200, 400, 400, 100 }, "Back", 80, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
 	};
 
 	if (IsWindowResized()) {
@@ -17,8 +19,8 @@ int RoomClass::settingsMenu() {
 
 	ClearBackground(BLACK);
 	BeginDrawing();
-	RaylibFunctions::drawButtonMap(&buttonMap);
-	RaylibFunctions::updateButtonStates(&buttonMap);
+    RaylibAdditions::drawButtons(&buttonMap);
+    RaylibAdditions::updateButtonstates(&buttonMap);
 	EndDrawing();
 
 	for (int i = 0; i < buttonMap.size(); i++) {

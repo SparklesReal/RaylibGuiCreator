@@ -9,16 +9,17 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <RaylibAdditions.hpp>
 
 int RoomClass::mainMenu() {
 
 	std::string GUIFilename = "";
 
-	std::unordered_map<std::string, ButtonClass> buttonMap { // Eh array might be better, I don't know how much more memory this uses
-		{ "StartButton", ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 50, 400, 100}, "Start", 80, RAYWHITE, DARKGRAY, 10) },
-		{ "SettingsButton", ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 200, 400, 100}, "Settings", 80, RAYWHITE, DARKGRAY, 10) },
-		{ "LoadGUIButton", ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 350, 400, 100}, "Load GUI", 60, RAYWHITE, DARKGRAY, 10) },
-		{ "GUIname", ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 500, 400, 100}, "", 20, RAYWHITE, DARKGRAY, 10) }
+	std::unordered_map<std::string, RaylibAdditions::ButtonClass> buttonMap { // Eh array might be better, I don't know how much more memory this uses
+		{ "StartButton", RaylibAdditions::ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 50, 400, 100}, "Start", 80, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "SettingsButton", RaylibAdditions::ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 200, 400, 100}, "Settings", 80, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "LoadGUIButton", RaylibAdditions::ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 350, 400, 100}, "Load GUI", 60, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "GUIname", RaylibAdditions::ButtonClass(Rectangle{float(GetScreenWidth()) / 2 - 200, 500, 400, 100}, "", 20, RAYWHITE, DARKGRAY, BLACK, 10, 1) }
 	};
 
 	while (getRoomID() == 0) {
@@ -37,10 +38,10 @@ int RoomClass::mainMenu() {
 
 		ClearBackground(BLACK);
 		BeginDrawing();
-		RaylibFunctions::drawButtonMap(&buttonMap);
+		RaylibAdditions::drawButtons(&buttonMap);
 		EndDrawing();
 
-		RaylibFunctions::updateButtonStates(&buttonMap);
+		RaylibAdditions::updateButtonstates(&buttonMap);
 
 		for (int i = 0; i < buttonMap.size(); i++) {
 			auto it = std::next(buttonMap.begin(), i);
@@ -58,7 +59,8 @@ int RoomClass::mainMenu() {
 						GUIFilename = "";
 						Rectangle rect = Rectangle{(float(GetScreenWidth()) / 2.0) - 200, (float(GetScreenHeight()) / 2.0) - 50, 400, 100};
 						BeginDrawing();
-						RaylibFunctions::drawButtonRect(rect, "Error: Invalid file", 20, GRAY, RED, 10);
+                        std::string error = "Error: Invalid file";
+						RaylibAdditions::drawRectWOutlineWText(rect, 20, GRAY, RED, error, 10, BLACK);
 						EndDrawing();
 						WaitTime(2); // This is dumb, please fix
 						continue;
