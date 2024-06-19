@@ -55,7 +55,7 @@ int RoomClass::mainMenu() {
 						RaylibAdditions::drawRectWOutlineWText(rect, 10, GRAY, RED, error, 20, BLACK);
 						EndDrawing();
 						WaitTime(2); // This is dumb, please fix
-						continue;
+						continue; 
 					}
 					Room.setRoomID(1);
 					break;

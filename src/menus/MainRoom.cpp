@@ -25,7 +25,6 @@ int RoomClass::mainRoom() {
 		{ "yInput",			RaylibAdditions::ButtonClass(Rectangle{ 800, 0, 300, 100 }, "", 40, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
 		{ "UpdateButton",	RaylibAdditions::ButtonClass(Rectangle{ 1100, 0, 300, 100 }, "Update", 40, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
 		{ "SaveButton",		RaylibAdditions::ButtonClass(Rectangle{1400, 0, 300, 100 }, "Save", 40, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
-		{ "InnerRect",		RaylibAdditions::ButtonClass(rectangles[1], "", 0, RAYWHITE, RAYWHITE, BLACK, 0, 1) } // Should not be drawn // Hope this does not cause errors due to empty string, 0 in outline, 0 in text size, and stuff
 	}; 
 
 	Rectangle UIRects[]{
@@ -130,14 +129,14 @@ int RoomClass::mainRoom() {
 					FileSystemFunctions::exportToFile(rectangles[1], saveLocation);
 				}
 
-				if (it->first == "InnerRect" && it->second.state == 1) {
-					posString = "X: " + std::to_string(int(GetScreenToWorld2D(GetMousePosition(), camera).x) - 5) + " Y: " + std::to_string(int(GetScreenToWorld2D(GetMousePosition(), camera).y) - 5); // "-5" due to the inner rectangle being offset by 5 from the outside of it
-					EndMode2D();
-					DrawText(posString.c_str(), 200, 0, 50, RAYWHITE);
-					BeginMode2D(camera);
-					break;
-				}
 			}
+		}
+
+		if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), rectangles[1])) {
+			posString = "X: " + std::to_string(int(GetScreenToWorld2D(GetMousePosition(), camera).x) - 5) + " Y: " + std::to_string(int(GetScreenToWorld2D(GetMousePosition(), camera).y) - 5); // "-5" due to the inner rectangle being offset by 5 from the outside of it
+			EndMode2D();
+			DrawText(posString.c_str(), 200, 100, 50, RAYWHITE);
+			BeginMode2D(camera);
 		}
 
 		if (IsMouseButtonPressed(0)) {
