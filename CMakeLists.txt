@@ -17,11 +17,11 @@ add_subdirectory(extern/raylib)
 include_directories(extern/raylib/src) 
 include_directories(extern/raylib/src/external)
 
-file(GLOB RAYLIB_SOURCES ${CMAKE_CURRENT_LIST_DIR}/*.cpp)
+file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.cpp)
 
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
-add_executable(RaylibGuiCreator ${RAYLIB_SOURCES})
+add_executable(RaylibGuiCreator ${SOURCES})
 target_link_libraries(RaylibGuiCreator PRIVATE raylib)
 
 project(RaylibGuiCreator)

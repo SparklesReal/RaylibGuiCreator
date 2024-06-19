@@ -24,12 +24,12 @@ int main() {
 			break;
 
 		case 1:
-			if (Room.mainRoom()) // this room is quirky and uses a different system
+			if (Room.mainRoom())
 				return 0;
 			break;
 
 		case 2:
-			Room.settingsMenu();
+			Room.settingsMenu(); // this room is quirky and uses a different system
 			break;
 
 		default:
