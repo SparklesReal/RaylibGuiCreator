@@ -53,6 +53,13 @@
         "typeinfo": "cpp",
         "*.m": "cpp",
         "cinttypes": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "dirent.h": "c",
+        "unistd.h": "c",
+        "termios.h": "c",
+        "stdlib.h": "c",
+        "string.h": "c",
+        "raylibdirent.h": "c",
+        "cstring": "cpp"
     }
 }

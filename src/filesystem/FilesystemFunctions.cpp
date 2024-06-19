@@ -3,15 +3,58 @@
 #include "../RaylibFunctions.h"
 #include "../Functions.h"
 
+#include <cstring>
 #include <fstream>
 #include <vector>
 #include <string>
 #include <iostream>
+#include <tinyfiledialogs.h>
+#include <filesystem>
 
+std::string FileSystemFunctions::setSaveLocation() {
+	const char *filterPatterns[] = { "*.gui" };
+	const char *saveFileName = tinyfd_saveFileDialog(
+		"Save GUI",
+		"",
+		1,
+		filterPatterns,
+		NULL);
+
+	if (saveFileName == NULL || strlen(saveFileName) == 0) {
+        std::cout << "Save dialog was cancelled or an error occurred." << std::endl;
+        return "";
+    }
+
+    return std::string(saveFileName);
+}
+
+std::string FileSystemFunctions::getSaveLocation() {
+	const char *filterPatterns[] = { "*.gui" };
+	const char *saveFileName = tinyfd_openFileDialog(
+		"Load GUI",
+		"",
+		1,
+		filterPatterns,
+		NULL,
+		false);
+
+	if (saveFileName == NULL || strlen(saveFileName) == 0) {
+        std::cout << "Save dialog was cancelled or an error occurred." << std::endl;
+        return "";
+    }
+
+    return std::string(saveFileName);
+}
 
 void FileSystemFunctions::exportToFile(Rectangle rec, std::string& filename) {
 	std::ofstream file;
-	file.open(filename + ".gui"); // Add system to not edit alredy existing files
+	std::filesystem::path filePath = filename;
+
+	if (filePath.extension() != ".gui")
+		file.open(filename + ".gui");
+	else
+		file.open(filename);
+
 	file << rec.width << ":" << rec.height << std::endl;
 	file << "!!!0:\n";
 	for (int i = 0; i < Drag.mapCount(); i++) {
@@ -30,7 +73,7 @@ void FileSystemFunctions::exportToFile(Rectangle rec, std::string& filename) {
 
 bool FileSystemFunctions::importFromFile(std::string& filename) { // move this/create a better loader in RaylibAdditions and include it here instead
 	std::ifstream file;
-	file.open(filename + ".gui");
+	file.open(filename);
 	if (!file.is_open())
 		return false;
 	std::string line;

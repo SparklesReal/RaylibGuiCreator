@@ -7,3 +7,6 @@
 [submodule "extern/RaylibAdditions"]
 	path = extern/RaylibAdditions
 	url = https://github.com/SparklesReal/RaylibAdditions
+[submodule "extern/libtinyfiledialogs"]
+	path = extern/libtinyfiledialogs
+	url = https://github.com/native-toolkit/libtinyfiledialogs

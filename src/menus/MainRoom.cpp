@@ -4,6 +4,7 @@
 #include "../RaylibFunctions.h"
 #include "../filesystem/FilesystemFunction.hpp"
 
+#include <iostream>
 #include <vector>
 #include <string>
 #include <RaylibAdditions.hpp>
@@ -19,12 +20,11 @@ int RoomClass::mainRoom() {
 	}; // Btw this is stupid and super hard to understand and I should just rewrite this but eh // Buttons are rewritten atleast
 
 	std::unordered_map<std::string, RaylibAdditions::ButtonClass> buttonMap{ // Eh array might be better, I don't know how much more memory this uses
-		{ "BackButton",		RaylibAdditions::ButtonClass(Rectangle{ 0, -100, 400, 100 }, "Back", 60, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
-		{ "xInput",			RaylibAdditions::ButtonClass(Rectangle{ 400, -100, 400, 100 }, "", 40, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
-		{ "yInput",			RaylibAdditions::ButtonClass(Rectangle{ 800, -100, 400, 100 }, "", 40, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
-		{ "UpdateButton",	RaylibAdditions::ButtonClass(Rectangle{ 1200, -100, 400, 100 }, "Update", 80, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
-		{ "SaveButton",		RaylibAdditions::ButtonClass(Rectangle{1600, -100, 400, 100 }, "Save", 80, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
-		{ "SaveName",		RaylibAdditions::ButtonClass(Rectangle{1600, -200, 400, 100 }, "", 30, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "BackButton",		RaylibAdditions::ButtonClass(Rectangle{ 200, 0, 300, 100 }, "Back", 60, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "xInput",			RaylibAdditions::ButtonClass(Rectangle{ 500, 0, 300, 100 }, "", 40, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "yInput",			RaylibAdditions::ButtonClass(Rectangle{ 800, 0, 300, 100 }, "", 40, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "UpdateButton",	RaylibAdditions::ButtonClass(Rectangle{ 1100, 0, 300, 100 }, "Update", 40, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "SaveButton",		RaylibAdditions::ButtonClass(Rectangle{1400, 0, 300, 100 }, "Save", 40, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
 		{ "InnerRect",		RaylibAdditions::ButtonClass(rectangles[1], "", 0, RAYWHITE, RAYWHITE, BLACK, 0, 1) } // Should not be drawn // Hope this does not cause errors due to empty string, 0 in outline, 0 in text size, and stuff
 	}; 
 
@@ -48,7 +48,7 @@ int RoomClass::mainRoom() {
 	int pageNum = 1;
 	std::vector<std::string> currentUI = RaylibFunctions::getUITextures(pageNum);
 
-	std::string xInput = "", yInput = "", GUISaveName = "";
+	std::string xInput = "", yInput = "";
 	int keyboardInput = 0;
 	std::string posString;
 	bool updateCam = true;
@@ -60,11 +60,8 @@ int RoomClass::mainRoom() {
 			camera = RaylibFunctions::updateCamera(camera, 2); // System to change the speed (in settings or keybind)
 		ClearBackground(BLACK);
 		BeginDrawing();
-		BeginMode2D(camera);
 
-		if(!CheckCollisionPointRec(GetMousePosition(), Rectangle{0, 0, 200, 1080}))
-		RaylibAdditions::updateButtonstates(&buttonMap, &camera);
-        RaylibAdditions::drawButton(&buttonMap.at("BackButton"));
+		RaylibAdditions::drawButton(&buttonMap.at("BackButton"));
 		RaylibAdditions::drawButton(&buttonMap.at("UpdateButton"));
 		RaylibAdditions::drawButton(&buttonMap.at("SaveButton"));
 
@@ -80,11 +77,11 @@ int RoomClass::mainRoom() {
 			buttonMap.at("yInput").text = yInput;
 		RaylibAdditions::drawButton(&buttonMap.at("yInput"));
 
-		if (GUISaveName == "")
-			buttonMap.at("SaveName").text = "Enter Save Name";
-		else
-			buttonMap.at("SaveName").text = GUISaveName;
-		RaylibAdditions::drawButton(&buttonMap.at("SaveName"));
+		RaylibAdditions::updateButtonstates(&buttonMap);
+
+		BeginMode2D(camera);
+
+		//if(!CheckCollisionPointRec(GetMousePosition(), Rectangle{0, 0, 200, 1080}))
 
 		for (int i = 0; i < buttonMap.size(); i++) {
 			auto it = std::next(buttonMap.begin(), i);
@@ -128,19 +125,9 @@ int RoomClass::mainRoom() {
 					break;
 				}
 
-				if (it->first == "SaveName" && it->second.state == 1) {
-					updateCam = false;
-					keyboardInput = GetCharPressed();
-					if (MeasureTextEx(GetFontDefault(), GUISaveName.c_str(), it->second.textSize, 10).x < (it->second.rect.width - 40) && keyboardInput != 0) // using 10 due to spacing, removing 40 due to outline
-						GUISaveName += (char(keyboardInput));
-
-					if (IsKeyPressed(KEY_BACKSPACE) && GUISaveName.size() > 0)
-						GUISaveName.pop_back();
-					break;
-				}
-
-				if (it->first == "SaveButton" && it->second.state == 2 && GUISaveName != "") {
-					FileSystemFunctions::exportToFile(rectangles[1], GUISaveName);
+				if (it->first == "SaveButton" && it->second.state == 2) {
+					std::string saveLocation = FileSystemFunctions::setSaveLocation();
+					FileSystemFunctions::exportToFile(rectangles[1], saveLocation);
 				}
 
 				if (it->first == "InnerRect" && it->second.state == 1) {
@@ -180,7 +167,7 @@ int RoomClass::mainRoom() {
 		EndDrawing();
 
 		if (WindowShouldClose()) {
-			std::string saveName = "Autosave";
+			std::string saveName = "Autosave.gui";
 			FileSystemFunctions::exportToFile(rectangles[1], saveName);
 			return 1;
 		}
