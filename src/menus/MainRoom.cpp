@@ -7,6 +7,8 @@
 #include <vector>
 #include <string>
 
+DragSystem Drag;
+
 int RoomClass::mainRoom() {
 	Camera2D camera = RaylibFunctions::createCamera();
 
