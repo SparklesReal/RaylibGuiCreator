@@ -3,18 +3,17 @@
 #include <unordered_map>
 
 #include "window.h"
-#include "room.h"
+#include "menus/room.h"
 #include "RaylibFunctions.h"
 
 ProgramWindowClass Window;
 RoomClass Room;
 MainRoomClass MainRoom;
-RaylibFunctionsClass Functions;
 TextureMapClass TextureMap;
 
 int main() {
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
-	TextureMap.updateTextureMap(Functions.loadTextures());
+	TextureMap.updateTextureMap(RaylibFunctions::loadTextures());
 
 	while (!WindowShouldClose()) {
 		switch (Room.getRoomID()) { // Todo: make all rooms use the same system, preferably the case 1: system as then all varibles aren't created outside of the function
