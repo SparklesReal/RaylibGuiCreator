@@ -139,13 +139,14 @@ int RoomClass::mainRoom() {
 			BeginMode2D(camera);
 		}
 
-		if (IsMouseButtonPressed(0)) {
+		if (IsMouseButtonPressed(0) && RaylibFunctions::getAmountOfPages() != 0) {
+
 			if (CheckCollisionPointTriangle(GetMousePosition(), triangles[0], triangles[1], triangles[2])) {
 				if (pageNum > 1)
 					pageNum--;
 				else
 					pageNum = RaylibFunctions::getAmountOfPages();
-		}
+			}
 
 			if (CheckCollisionPointTriangle(GetMousePosition(), triangles[3], triangles[4], triangles[5])) {
 				if (pageNum < RaylibFunctions::getAmountOfPages())

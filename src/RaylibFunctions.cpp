@@ -116,6 +116,8 @@ void RaylibFunctions::drawUI(std::vector<std::string> UI, Rectangle UIRects[], s
 	}
 
 	Rectangle belowUI = { 0, 1000, 200, 80 }; // xPos, yPos, RecWidth, RecHeight
+	if (getAmountOfPages() == 0)
+		pageNum = 0;
 	std::string pageString = std::to_string(pageNum) + "/" + std::to_string(getAmountOfPages());
 	RaylibAdditions::drawTextCenterRect(belowUI, pageString, 25, RAYWHITE);
 	DrawTriangle(triangles[0], triangles[1], triangles[2], GRAY);
