@@ -14,7 +14,6 @@ namespace RaylibFunctions {
 	Camera2D updateCamera(Camera2D camera, float speed);
 	std::unordered_map<std::string, Texture2D> loadTextures();
 	Texture2D* stringToTexture(std::string texture);
-	Texture2D* numToTexture(int num);
 
 	int getAmountOfPages();
 	std::vector<std::string> getUITextures(int pageNum);

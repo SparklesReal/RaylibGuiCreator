@@ -78,14 +78,6 @@ Texture2D* RaylibFunctions::stringToTexture(std::string texture) {
 	return &TextureMap.getTextureMap()->at(texture);
 }
 
-Texture2D* RaylibFunctions::numToTexture(int num) { // This is stupid I think cus why would I need it this should be at drag class
-	auto it = TextureMap.getTextureMap()->begin();
-	std::advance(it, num);
-	if (it != TextureMap.getTextureMap()->end())
-		return &it->second;
-	return nullptr;
-}
-
 int RaylibFunctions::getAmountOfPages() {
 	int pages = TextureMap.getTextureMap()->size() / 5;
 	if (TextureMap.getTextureMap()->size() % 5 != 0)
