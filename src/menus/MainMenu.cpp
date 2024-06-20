@@ -47,7 +47,6 @@ int RoomClass::mainMenu() {
 				}
 				if (it->first == "LoadGUIButton") {
 					std::string path = FileSystemFunctions::getSaveLocation();
-					std::cerr << path;
 					if(!FileSystemFunctions::importFromFile(path)) {
 						Rectangle rect = Rectangle{(float(GetScreenWidth()) / 2.0) - 200, (float(GetScreenHeight()) / 2.0) - 50, 400, 100};
 						BeginDrawing();
@@ -57,7 +56,6 @@ int RoomClass::mainMenu() {
 						WaitTime(2); // This is dumb, please fix
 						continue; 
 					}
-					Room.setRoomID(1);
 					break;
 				}
 			}

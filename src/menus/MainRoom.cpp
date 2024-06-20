@@ -126,6 +126,8 @@ int RoomClass::mainRoom() {
 
 				if (it->first == "SaveButton" && it->second.state == 2) {
 					std::string saveLocation = FileSystemFunctions::setSaveLocation();
+					if (saveLocation == "") 
+						break;
 					FileSystemFunctions::exportToFile(rectangles[1], saveLocation);
 				}
 

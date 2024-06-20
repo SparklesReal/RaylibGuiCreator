@@ -85,6 +85,9 @@ bool FileSystemFunctions::importFromFile(std::string& filename) { // move this/c
 	
 	std::ifstream file;
 	file.open(filename);
+	if (!file.is_open()) {
+		return false;
+	}
 	std::string line;
 	int i = 0;
 	while (std::getline(file, line)) { 
