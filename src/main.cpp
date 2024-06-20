@@ -6,7 +6,7 @@
 #include "menus/room.h"
 #include "RaylibFunctions.h"
 
-ProgramWindowClass Window;
+ProgramWindowClass Window (1920, 1080, "GUI creator for Raylib");
 RoomClass Room;
 MainRoomClass MainRoom;
 TextureMapClass TextureMap;
