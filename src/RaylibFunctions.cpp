@@ -130,8 +130,8 @@ Rectangle RaylibFunctions::drawRightClickMenu(int textureNum, Vector2* TexturePo
 		return { 0,0,0,0 };
 	float textureScale = Drag.getScale(textureNum);
 	Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
-	Rectangle menuRec{ TexturePos->x + (texture->width * textureScale) + 6, TexturePos->y + 6, 23, 48 }; // xPos, yPos, RecWidth, RecHeight
-	Rectangle menuRecOutline{ TexturePos->x + (texture->width * textureScale) + 5, TexturePos->y + 5, 25, 50 };
+	Rectangle menuRec{ TexturePos->x - 5 + (texture->width * textureScale) + 6 - 5, TexturePos->y + 6, 23, 48 }; // xPos, yPos, RecWidth, RecHeight
+	Rectangle menuRecOutline{ TexturePos->x - 5 + (texture->width * textureScale) + 5 - 5, TexturePos->y + 5, 25, 50 };
 	BeginMode2D(*camera);
 	DrawRectangleLinesEx(menuRecOutline, 1, GRAY);
 	DrawRectangleRec(menuRec, RAYWHITE);
@@ -226,7 +226,7 @@ void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Recta
 	}
 
 	if (textureHeld == "" && IsMouseButtonDown(1) && CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), area) ) {
-		for (int i = 0; i < textureMap.size(); i++) {
+		for (int i = textureMap.size() - 1; i >= 0; --i) {
 			auto it = std::next(textureMap.begin(), i);
 			Texture2D* texture = Drag.getTextureByNum(i);
 			float scale = getScale(i);
