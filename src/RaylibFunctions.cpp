@@ -169,7 +169,7 @@ bool RaylibFunctions::allKeysReleased() {
 Texture2D* DragSystem::getTextureByNum(int num) {
 	auto it = Drag.getTextureMap()->begin();
 	std::advance(it, num);
-	if (it != Drag.getTextureMap()->end())
+	if (it <= Drag.getTextureMap()->end())
 		return RaylibFunctions::stringToTexture(it->first);
 	return nullptr;
 }
