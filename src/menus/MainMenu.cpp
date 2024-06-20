@@ -56,6 +56,7 @@ int RoomClass::mainMenu() {
 						WaitTime(2); // This is dumb, please fix
 						continue; 
 					}
+					Room.setRoomID(1);
 					break;
 				}
 			}
