@@ -3,6 +3,8 @@
 #include "../RaylibFunctions.h"
 #include "../Functions.h"
 
+#include <RaylibAdditions.hpp>
+#include <GUI.hpp>
 #include <cstring>
 #include <fstream>
 #include <vector>
@@ -56,75 +58,69 @@ void FileSystemFunctions::exportToFile(Rectangle rec, std::string& filename) {
 		file.open(filename);
 
 	file << rec.width << ":" << rec.height << std::endl;
-	file << "!!!0:\n";
+	file << "[frame:0]\n";
 	for (int i = 0; i < Drag.mapCount(); i++) {
 		auto it = std::next(Drag.getTextureMap()->begin() , i);
 		if (Drag.getButtonTexture(i) == "N/A")
-			file << "\t" << i << " - " << it->first << " -- " << it->second.x << " --- " << it->second.y << " ---- " << "x" << Drag.getScale(i) << std::endl;
+			file << "\t" << i << " ----- " << it->first << " ----- " << it->second.x << " ----- " << it->second.y << " ----- " << "x" << Drag.getScale(i) << std::endl;
 	}
-	file << "!!!buttons:";
+	file << "[buttons]";
 	for (int i = 0; i < Drag.mapCount(); i++) {
 		auto it = std::next(Drag.getTextureMap()->begin(), i);
 		if (Drag.getButtonTexture(i) != "N/A")
-			file << "\t" << i << " - " << it->first << " -- " << Drag.getButtonTexture(i) << " --- " << it->second.x << " ---- " << it->second.y << " " << " ----- " << Drag.getScale(i) << std::endl;
+			file << "\t" << i << " ----- " << it->first << " ----- " << Drag.getButtonTexture(i) << " ----- " << it->second.x << " ----- " << it->second.y << " ----- " << " ----- " << Drag.getScale(i) << std::endl;
 	}
 	file.close();
 }
 
 bool FileSystemFunctions::importFromFile(std::string& filename) { // move this/create a better loader in RaylibAdditions and include it here instead
-	std::ifstream file;
-	file.open(filename);
-	if (!file.is_open())
-		return false;
-	std::string line;
-	int i = 0;
-	int currentFrame = 0;
 	Vector2 size{ 0,0 };
-	std::vector<std::pair<std::string, Vector2>> map;
+	std::vector<std::string> textureName;
+	std::vector<Vector2> texturePos;
 	std::vector<float> scaleVector;
 	std::vector<std::string> buttonTexture;
-	while (std::getline(file, line)) {
+
+	RaylibAdditions::RoomClass room;
+	RaylibAdditions::LoadedRoomClass loadedRoom = room.loadRoom("", filename);
+	
+	std::ifstream file;
+	file.open(filename);
+	std::string line;
+	int i = 0;
+	while (std::getline(file, line)) { 
+
+		if (i == 0) {
+			size.x = stof(line.substr(0, line.find(':')));
+			size.y = stof(line.substr(line.find(':') + 1));
+		}
+
+		if (line.find("-----") != std::string::npos) {
+			std::string afterTextureSplit = line.substr(line.find("-----") + 6);
+			std::string texture = afterTextureSplit.substr(0, afterTextureSplit.find("-----") - 1);
+			textureName.push_back(texture);
+		}
 		i++;
-		std::cout << line << std::endl;
-		if (i == 1) {
-			int index = line.find(":");
-			std::string Xstring = line.substr(0, index);
-			std::string Ystring = line.substr(index + 1, line.length());
-			size = { std::stof(Xstring), std::stof(Ystring) };
-			MainRoom.size = size;
-			continue;
-		}
-		if (i == 3) {
-			if (line == "!!!buttons:") {
-			std::cout << "Error: File is empty" << std::endl;
-			return false;
-			}
-		}
-		size_t index = line.find("!!!");
- 		if (index != std::string::npos && index + 3 == 3) {
-			std::string value = line.substr(index + 3, line.length());
-			std::cout << value;
-			value = value.substr(0, value.find(':'));
-			if (NormalFunctions::stringIsInt(value)) {
-				currentFrame = std::stoi(value); // use later when frame system is in place
-				continue;
-			}
-			else if (value == "buttons") {
-				// do stuff
-				continue;
-			} else {
-				std::cout << "Error: value is not int nor buttons" << std::endl; // Yes I needed this while coding... 
-				return false;
-			}
-		}
-		std::string texture = line.substr(line.find(" - ") + 3, line.find(" -- ") - line.find(" - ") - 3);
-		float textureX = stof(line.substr(line.find(" -- ") + 4, line.find(" --- ") - line.find(" -- ") - 4));
-		float textureY = stof(line.substr(line.find(" --- ") + 5, line.find(" ---- ") - line.find(" --- ") - 5));
-		float scale = stof(line.substr(line.find(" ---- ") + 7, line.length() - line.find(" ---- ") - 6));
-		map.push_back(std::make_pair(texture, Vector2{ textureX, textureY }));
-		scaleVector.push_back(scale);
-		buttonTexture.push_back("N/A");
 	}
+
+	for (auto& frame : loadedRoom.frames) { // only 1 frame works for now
+		for (auto& frameTexturePos : frame.texturePos) {
+			texturePos.push_back(frameTexturePos);
+		}
+		for (auto& frameTextureScale : frame.textureScales) {
+			scaleVector.push_back(frameTextureScale);
+		}
+	}
+
+	buttonTexture.push_back("N/A");
+
+	i = 0;
+	std::vector<std::pair<std::string, Vector2>> map;
+	for (auto &string : textureName) {
+		map.push_back({string, texturePos[i]});
+		i++;
+	}
+
+	MainRoom.size = size;
 	Drag.setTextureMap(map);
 	Drag.setScaleArray(scaleVector);
 	Drag.setButtonArray(buttonTexture);

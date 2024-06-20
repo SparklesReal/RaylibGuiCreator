@@ -167,7 +167,7 @@ int RoomClass::mainRoom() {
 		EndDrawing();
 
 		if (WindowShouldClose()) {
-			std::string saveName = "Autosave.gui";
+			std::string saveName = "Autosave.gui"; // Do not overwrite autosave, please fix :)
 			FileSystemFunctions::exportToFile(rectangles[1], saveName);
 			return 1;
 		}
