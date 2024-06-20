@@ -4,36 +4,15 @@
 
 #include "window.h"
 #include "Functions.h"
-#include "room.h"
+#include "menus/room.h"
 
+#include <RaylibAdditions.hpp>
 #include <raymath.h>
 #include <filesystem>
 #include <iostream>
 #include <fstream>
 
-int RaylibFunctionsClass::drawTextRectCenter(Rectangle rect, std::string text, int size, Color color) {
-	DrawTextEx(
-		GetFontDefault(),
-		text.c_str(), 
-		Vector2{ rect.x + (rect.width - MeasureTextEx(GetFontDefault(), text.c_str(), size, 10).x) / 2, // xPos + (width - textWidth) / 2
-		rect.y + (rect.height - size) / 2},																// yPos + (height - size) / 2 ;note we remove the size / 2 because text prints from the middle of the position
-		size, 
-		10,
-		color);
-	return 0;
-} // turn into a void function
-
-void RaylibFunctionsClass::drawButtonRect(Rectangle rect, std::string text, int size, Color rectangleColor, Color outlineColor, int outlineThickness) {
-	DrawRectangleRec(rect, rectangleColor);
-	DrawRectangleLinesEx(rect, outlineThickness, outlineColor);
-	drawTextRectCenter(rect, text, size, BLACK);
-}
-
-void RaylibFunctionsClass::drawButtonRect(ButtonClass *button) {
-	drawButtonRect(button->rect, button->text, button->textSize, button->color, button->outlineColor, button->outlineThickness);
-}
-
-Camera2D RaylibFunctionsClass::createCamera() {
+Camera2D RaylibFunctions::createCamera() {
 	Camera2D camera{ 0 };
 	camera.target = Vector2{ 0, -100 };
 	camera.offset = Vector2{ 0, 0 };
@@ -42,7 +21,7 @@ Camera2D RaylibFunctionsClass::createCamera() {
 	return camera;
 }
 
-Camera2D RaylibFunctionsClass::updateCamera(Camera2D camera, float speed) { // Todo: System seems to be laggy when going diagonal, try to debug
+Camera2D RaylibFunctions::updateCamera(Camera2D camera, float speed) { // Todo: System seems to be laggy when going diagonal, try to debug
 	if (IsKeyDown(KEY_R)) {
 		camera.target = Vector2{ 0, -100 };
 		camera.zoom = 1.0f;
@@ -66,7 +45,7 @@ Camera2D RaylibFunctionsClass::updateCamera(Camera2D camera, float speed) { // T
 	return camera;
 }
 
-std::unordered_map<std::string, Texture2D> RaylibFunctionsClass::loadTextures() { //Todo load all files from folders aswell //Todo change to raylib system :skull:
+std::unordered_map<std::string, Texture2D> RaylibFunctions::loadTextures() { //Todo load all files from folders aswell //Todo change to raylib system :skull:
 	std::unordered_map<std::string, Texture2D> returnMap;
 
 	std::filesystem::path path{ "./textures" };
@@ -95,59 +74,18 @@ std::unordered_map<std::string, Texture2D> RaylibFunctionsClass::loadTextures() 
 	return returnMap;
 }
 
-Texture2D* RaylibFunctionsClass::stringToTexture(std::string texture) {
+Texture2D* RaylibFunctions::stringToTexture(std::string texture) {
 	return &TextureMap.getTextureMap()->at(texture);
 }
 
-Texture2D* RaylibFunctionsClass::numToTexture(int num) { // This is stupid I think cus why would I need it this should be at drag class
-	auto it = TextureMap.getTextureMap()->begin();
-	std::advance(it, num);
-	if (it != TextureMap.getTextureMap()->end())
-		return &it->second;
-	return nullptr;
-}
-
-void RaylibFunctionsClass::drawButtonMap(std::unordered_map<std::string, ButtonClass> *buttons) {
-	for (int i = 0; i < buttons->size(); i++) {
-		auto it = std::next(buttons->begin(), i);
-		Functions.drawButtonRect(&it->second);
-	}
-}
-
-void RaylibFunctionsClass::updateButtonStates(std::unordered_map<std::string, ButtonClass> *buttons) {
-	for (int i = 0; i < buttons->size(); i++) {
-		auto it = std::next(buttons->begin(), i);
-		if (CheckCollisionPointRec(GetMousePosition(), it->second.rect)) {
-			it->second.state = 1;
-			if (IsMouseButtonPressed(0))
-				it->second.state = 2;
-		}
-		else
-			it->second.state = 0;
-	}
-}
-
-void RaylibFunctionsClass::updateButtonStates(std::unordered_map<std::string, ButtonClass>* buttons, Camera2D camera) {
-	for (int i = 0; i < buttons->size(); i++) {
-		auto it = std::next(buttons->begin(), i);
-		if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), it->second.rect)) {
-			it->second.state = 1;
-			if (IsMouseButtonPressed(0))
-				it->second.state = 2;
-		}
-		else
-			it->second.state = 0;
-	}
-}
-
-int RaylibFunctionsClass::getAmountOfPages() {
+int RaylibFunctions::getAmountOfPages() {
 	int pages = TextureMap.getTextureMap()->size() / 5;
 	if (TextureMap.getTextureMap()->size() % 5 != 0)
 		pages++;
 	return pages;
 }
 
-std::vector<std::string> RaylibFunctionsClass::getUITextures(int pageNum) {
+std::vector<std::string> RaylibFunctions::getUITextures(int pageNum) {
 	std::vector<std::string> UI; // Rename varible // why doe? // Sure UI it is then
 	std::unordered_map<std::string, Texture2D>* textureMap = TextureMap.getTextureMap();
 	for (int i = 5 * pageNum - 5; i < 5 * pageNum; i++) {
@@ -159,7 +97,7 @@ std::vector<std::string> RaylibFunctionsClass::getUITextures(int pageNum) {
 	return UI;
 }
 
-void RaylibFunctionsClass::drawUI(std::vector<std::string> UI, Rectangle UIRects[], size_t arraySize, int pageNum, Vector2 triangles[6]) {
+void RaylibFunctions::drawUI(std::vector<std::string> UI, Rectangle UIRects[], size_t arraySize, int pageNum, Vector2 triangles[6]) {
 	for (int i = 0; i < arraySize; i++) {
 		if (i == UI.size())
 			break; 
@@ -178,19 +116,22 @@ void RaylibFunctionsClass::drawUI(std::vector<std::string> UI, Rectangle UIRects
 	}
 
 	Rectangle belowUI = { 0, 1000, 200, 80 }; // xPos, yPos, RecWidth, RecHeight
-	drawTextRectCenter(belowUI, std::to_string(pageNum) + "/" + std::to_string(getAmountOfPages()), 25, RAYWHITE);
+	if (getAmountOfPages() == 0)
+		pageNum = 0;
+	std::string pageString = std::to_string(pageNum) + "/" + std::to_string(getAmountOfPages());
+	RaylibAdditions::drawTextCenterRect(belowUI, pageString, 25, RAYWHITE);
 	DrawTriangle(triangles[0], triangles[1], triangles[2], GRAY);
 	DrawTriangle(triangles[3], triangles[4], triangles[5], GRAY);
 }
 
-Rectangle RaylibFunctionsClass::drawRightClickMenu(int textureNum, Vector2* TexturePos, Camera2D* camera, std::vector<std::string> UI, Rectangle UIRects[5]) {
+Rectangle RaylibFunctions::drawRightClickMenu(int textureNum, Vector2* TexturePos, Camera2D* camera, std::vector<std::string> UI, Rectangle UIRects[5]) {
 	Texture2D* texture = Drag.getTextureByNum(textureNum);
 	if (texture == nullptr)
 		return { 0,0,0,0 };
 	float textureScale = Drag.getScale(textureNum);
 	Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
-	Rectangle menuRec{ TexturePos->x + (texture->width * textureScale) + 6, TexturePos->y + 6, 23, 48 }; // xPos, yPos, RecWidth, RecHeight
-	Rectangle menuRecOutline{ TexturePos->x + (texture->width * textureScale) + 5, TexturePos->y + 5, 25, 50 };
+	Rectangle menuRec{ TexturePos->x - 5 + (texture->width * textureScale) + 6 - 5, TexturePos->y + 6, 23, 48 }; // xPos, yPos, RecWidth, RecHeight
+	Rectangle menuRecOutline{ TexturePos->x - 5 + (texture->width * textureScale) + 5 - 5, TexturePos->y + 5, 25, 50 };
 	BeginMode2D(*camera);
 	DrawRectangleLinesEx(menuRecOutline, 1, GRAY);
 	DrawRectangleRec(menuRec, RAYWHITE);
@@ -217,7 +158,7 @@ Rectangle RaylibFunctionsClass::drawRightClickMenu(int textureNum, Vector2* Text
 	return menuRecOutline;
 }
 
-bool RaylibFunctionsClass::allKeysReleased() {
+bool RaylibFunctions::allKeysReleased() {
 	for (int i = 0; i < MAX_KEYS; i++) {
 		if (IsKeyDown(i)) 
 			return false;
@@ -228,8 +169,8 @@ bool RaylibFunctionsClass::allKeysReleased() {
 Texture2D* DragSystem::getTextureByNum(int num) {
 	auto it = Drag.getTextureMap()->begin();
 	std::advance(it, num);
-	if (it != Drag.getTextureMap()->end())
-		return Functions.stringToTexture(it->first);
+	if (it <= Drag.getTextureMap()->end())
+		return RaylibFunctions::stringToTexture(it->first);
 	return nullptr;
 }
 
@@ -242,12 +183,12 @@ void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Recta
 	BeginMode2D(camera);
 	for (std::size_t i = 0; i < textureMap.size(); i++) {
 		auto it = std::next(textureMap.begin(), i);
-		DrawTextureEx(*Functions.stringToTexture(it->first), { std::round(area.x + it->second.x), std::round(area.y + it->second.y) }, 0, scales[i], RAYWHITE);
+		DrawTextureEx(*RaylibFunctions::stringToTexture(it->first), { std::round(area.x + it->second.x), std::round(area.y + it->second.y) }, 0, scales[i], RAYWHITE);
 	}
 	EndMode2D();
 	
 	if (IsMouseButtonReleased(0) && CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), area) && textureHeld != "") {
-		Texture2D texture = *Functions.stringToTexture(textureHeld);
+		Texture2D texture = *RaylibFunctions::stringToTexture(textureHeld);
 		Vector2 mousePos = Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), camera), { 5,5 }); // 5,5 due to outline // make it a var or something to not need comments
 		mousePos.x = std::round(mousePos.x);
 		mousePos.y = std::round(mousePos.y);
@@ -275,7 +216,7 @@ void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Recta
 	}
 
 	if (textureHeld == "" && CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), rightClickUI)) {
-		rightClickUI = Functions.drawRightClickMenu(lastTexture, &lastTexturePos, &camera, UI, UIRects);
+		rightClickUI = RaylibFunctions::drawRightClickMenu(lastTexture, &lastTexturePos, &camera, UI, UIRects);
 	}
 
 	if (textureHeld != ""  || !CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), rightClickUI)) {
@@ -285,13 +226,13 @@ void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Recta
 	}
 
 	if (textureHeld == "" && IsMouseButtonDown(1) && CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), area) ) {
-		for (int i = 0; i < textureMap.size(); i++) {
+		for (int i = textureMap.size() - 1; i >= 0; --i) {
 			auto it = std::next(textureMap.begin(), i);
 			Texture2D* texture = Drag.getTextureByNum(i);
 			float scale = getScale(i);
 			if (CheckCollisionPointRec({ GetScreenToWorld2D(GetMousePosition(), camera).x , GetScreenToWorld2D(GetMousePosition(), camera).y },
 										{ it->second.x + 5, it->second.y + 5, float(texture->width * scale), float(texture->height * scale) })) {  // I don't know why we do -5, I have been trying with +5 and that mistake costed me 2 hours and my motivation // well put it at the mouse pos not the rect pos, im dumb // * 1.25 idk why // Tip: don't take textures from the wrong texture map // This is the worst line of code with the most bugs and the most comments, please just delete this the pain I suffered alredy is enough
-				rightClickUI = Functions.drawRightClickMenu(i, &it->second, &camera, UI, UIRects);
+				rightClickUI = RaylibFunctions::drawRightClickMenu(i, &it->second, &camera, UI, UIRects);
 				lastTexture = i;
 				lastTexturePos = it->second;
 				break;
@@ -300,7 +241,7 @@ void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Recta
 	}
 
 	if (textureHeld != "") {
-		Texture2D* texture = Functions.stringToTexture(textureHeld);
+		Texture2D* texture = RaylibFunctions::stringToTexture(textureHeld);
 		DrawTextureEx(*texture, GetMousePosition(), 0, scale * camera.zoom, RAYWHITE);
 		if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), area)) {
 			Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
@@ -346,84 +287,4 @@ void DragSystem::removeElementByNum(const int num) {
 		scales.erase(scales.begin() + num);
 	if (num < buttonTexture.size())
 		buttonTexture.erase(buttonTexture.begin() + num);
-}
-
-void FileSystem::exportToFile(Rectangle rec, std::string& filename) {
-	std::ofstream file;
-	file.open(filename + ".gui"); // Add system to not edit alredy existing files
-	file << rec.width << ":" << rec.height << std::endl;
-	file << "!!!0:\n";
-	for (int i = 0; i < Drag.mapCount(); i++) {
-		auto it = std::next(Drag.getTextureMap()->begin() , i);
-		if (Drag.getButtonTexture(i) == "N/A")
-			file << "\t" << i << " - " << it->first << " -- " << it->second.x << " --- " << it->second.y << " ---- " << "x" << Drag.getScale(i) << std::endl;
-	}
-	file << "!!!buttons:";
-	for (int i = 0; i < Drag.mapCount(); i++) {
-		auto it = std::next(Drag.getTextureMap()->begin(), i);
-		if (Drag.getButtonTexture(i) != "N/A")
-			file << "\t" << i << " - " << it->first << " -- " << Drag.getButtonTexture(i) << " --- " << it->second.x << " ---- " << it->second.y << " " << " ----- " << Drag.getScale(i) << std::endl;
-	}
-	file.close();
-}
-
-bool FileSystem::importFromFile(std::string& filename) { // move this/create a better loader in RaylibAdditions and include it here instead
-	std::ifstream file;
-	file.open(filename + ".gui");
-	if (!file.is_open())
-		return false;
-	std::string line;
-	int i = 0;
-	int currentFrame = 0;
-	Vector2 size{ 0,0 };
-	std::vector<std::pair<std::string, Vector2>> map;
-	std::vector<float> scaleVector;
-	std::vector<std::string> buttonTexture;
-	while (std::getline(file, line)) {
-		i++;
-		std::cout << line << std::endl;
-		if (i == 1) {
-			int index = line.find(":");
-			std::string Xstring = line.substr(0, index);
-			std::string Ystring = line.substr(index + 1, line.length());
-			size = { std::stof(Xstring), std::stof(Ystring) };
-			MainRoom.size = size;
-			continue;
-		}
-		if (i == 3) {
-			if (line != "!!!buttons:")
-				continue;
-			std::cout << "Error: File is empty" << std::endl;
-			return false;
-		}
-		size_t index = line.find("!!!");
- 		if (index != std::string::npos && index + 3 == 3) {
-			std::string value = line.substr(index + 3, line.length());
-			std::cout << value;
-			value = value.substr(0, value.find(':'));
-			if (NormalFunctions::stringIsInt(value)) {
-				currentFrame = std::stoi(value); // use later when frame system is in place
-				continue;
-			}
-			else if (value == "buttons") {
-				// do stuff
-				continue;
-			} else {
-				std::cout << "Error: value is not int nor buttons" << std::endl; // Yes I needed this while coding... 
-				return false;
-			}
-		}
-		std::string texture = line.substr(line.find(" - ") + 3, line.find(" -- ") - line.find(" - ") - 3);
-		float textureX = stof(line.substr(line.find(" -- ") + 4, line.find(" --- ") - line.find(" -- ") - 4));
-		float textureY = stof(line.substr(line.find(" --- ") + 5, line.find(" ---- ") - line.find(" --- ") - 5));
-		float scale = stof(line.substr(line.find(" ---- ") + 7, line.length() - line.find(" ---- ") - 6));
-		map.push_back(std::make_pair(texture, Vector2{ textureX, textureY }));
-		scaleVector.push_back(scale);
-		buttonTexture.push_back("N/A");
-	}
-	Drag.setTextureMap(map);
-	Drag.setScaleArray(scaleVector);
-	Drag.setButtonArray(buttonTexture);
-	file.close();
-	return true;
 }

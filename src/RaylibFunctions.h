@@ -1,6 +1,6 @@
 #pragma once
 
-#include "room.h"
+#include "menus/room.h"
 
 #include <raylib.h>
 #include <string>
@@ -9,27 +9,18 @@
 #include <algorithm>
 
 //This file is a mess
-class RaylibFunctionsClass {
-public:
-	int drawTextRectCenter(Rectangle rect, std::string text, int size, Color color); // In RaylibAdditions, ready for swithc to lib
-	void drawButtonRect(Rectangle rect, std::string text, int size, Color rectangleColor, Color outlineColor, int outlineThickness); // In RaylibAdditions, ready for swithc to lib
-	void drawButtonRect(ButtonClass *button); //Rename both to drawButton // In RaylibAdditions, ready for swithc to lib
+namespace RaylibFunctions {
 	Camera2D createCamera();
 	Camera2D updateCamera(Camera2D camera, float speed);
 	std::unordered_map<std::string, Texture2D> loadTextures();
 	Texture2D* stringToTexture(std::string texture);
-	Texture2D* numToTexture(int num);
-	void drawButtonMap(std::unordered_map<std::string, ButtonClass> *buttons); // In RaylibAdditions, ready for swithc to lib
-	void updateButtonStates(std::unordered_map<std::string, ButtonClass>* buttons); // In RaylibAdditions, ready for swithc to lib
-	void updateButtonStates(std::unordered_map<std::string, ButtonClass>* buttons, Camera2D camera);
 
 	int getAmountOfPages();
 	std::vector<std::string> getUITextures(int pageNum);
 	void drawUI(std::vector<std::string> UI, Rectangle UIRects[], size_t arraySize, int pageNum, Vector2 triangles[6]); // create a better order of the args // Remove arraySize use UIRects[5]
-	Rectangle drawRightClickMenu(int textureNum, Vector2* texturePos, Camera2D* camera, std::vector<std::string> UI, Rectangle UIRects[5]); // just make UI global
+	Rectangle drawRightClickMenu(int textureNum, Vector2* texturePos, Camera2D* camera, std::vector<std::string> UI, Rectangle UIRects[5]); // just make UI global // Why did yoou not make it's own class?
 	bool allKeysReleased();
-}; // Split UI functions to new class?
-extern RaylibFunctionsClass Functions;
+}; // Split UI functions to new namespace?
 
 class DragSystem {
 private:
@@ -79,14 +70,7 @@ public:
 
 	void reloadTextures() {
 		unloadTextures();
-		textureMap = Functions.loadTextures();
+		textureMap = RaylibFunctions::loadTextures();
 	}
 };
 extern TextureMapClass TextureMap;
-
-class FileSystem {
-private:
-public:
-	void exportToFile(Rectangle rec, std::string& filename);
-	bool importFromFile(std::string& filename);
-};

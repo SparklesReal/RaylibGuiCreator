@@ -3,13 +3,11 @@
 
 class ProgramWindowClass {
 public:
-	std::string title = "GUI creator for Raylib";
+	std::string title;
 	int width;
 	int height;
 
-	ProgramWindowClass() {
-		width = 1920;
-		height = 1080;
+	ProgramWindowClass(int w, int h, std::string t) : width(w), height(h), title(t) {
 		InitWindow(width, height, title.c_str());
 	};
 
