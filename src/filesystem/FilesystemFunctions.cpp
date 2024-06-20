@@ -95,10 +95,10 @@ bool FileSystemFunctions::importFromFile(std::string& filename) { // move this/c
 			continue;
 		}
 		if (i == 3) {
-			if (line != "!!!buttons:")
-				continue;
+			if (line == "!!!buttons:") {
 			std::cout << "Error: File is empty" << std::endl;
 			return false;
+			}
 		}
 		size_t index = line.find("!!!");
  		if (index != std::string::npos && index + 3 == 3) {
