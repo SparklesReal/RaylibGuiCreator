@@ -49,7 +49,7 @@ int RoomClass::mainMenu() {
 					std::string path = FileSystemFunctions::getSaveLocation();
 					std::pair<std::vector<RaylibAdditions::FrameClass>, std::vector<std::vector<std::string>>> loadedThing = FileSystemFunctions::importFromFile(path);
 					if (loadedThing.first.size() == 0) {
-						Rectangle rect = Rectangle{(float(GetScreenWidth()) / 2.0) - 200, (float(GetScreenHeight()) / 2.0) - 50, 400, 100};
+						Rectangle rect = Rectangle{(float(GetScreenWidth()) / 2.0f) - 200.0f, (float(GetScreenHeight()) / 2.0f) - 50.0f, 400.0f, 100.0f};
 						BeginDrawing();
                         std::string error = "Error loading file";
 						RaylibAdditions::drawRectWOutlineWText(rect, 10, GRAY, RED, error, 20, BLACK);
