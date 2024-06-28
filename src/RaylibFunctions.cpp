@@ -124,11 +124,11 @@ void RaylibFunctions::drawUI(std::vector<std::string> UI, Rectangle UIRects[], s
 	DrawTriangle(triangles[3], triangles[4], triangles[5], GRAY);
 }
 
-Rectangle RaylibFunctions::drawRightClickMenu(int textureNum, Vector2* TexturePos, Camera2D* camera, std::vector<std::string> UI, Rectangle UIRects[5]) {
-	Texture2D* texture = Drag.getTextureByNum(textureNum);
+Rectangle RaylibFunctions::drawRightClickMenu(int textureNum, Vector2* TexturePos, Camera2D* camera, std::vector<std::string> UI, Rectangle UIRects[5], DragSystem *Frame) {
+	Texture2D* texture = Frame->getTextureByNum(textureNum);
 	if (texture == nullptr)
 		return { 0,0,0,0 };
-	float textureScale = Drag.getScale(textureNum);
+	float textureScale = Frame->getScale(textureNum);
 	Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
 	Rectangle menuRec{ TexturePos->x - 5 + (texture->width * textureScale) + 6 - 5, TexturePos->y + 6, 23, 48 }; // xPos, yPos, RecWidth, RecHeight
 	Rectangle menuRecOutline{ TexturePos->x - 5 + (texture->width * textureScale) + 5 - 5, TexturePos->y + 5, 25, 50 };
@@ -148,11 +148,11 @@ Rectangle RaylibFunctions::drawRightClickMenu(int textureNum, Vector2* TexturePo
 	EndMode2D();
 
 	if (CheckCollisionPointRec(mousePos, deleteButton) && IsMouseButtonPressed(0)) {
-		Drag.removeElementByNum(textureNum);
+		Frame->removeElementByNum(textureNum);
 	}
 
 	if (CheckCollisionPointRec(mousePos, makeButtonButton) && IsMouseButtonPressed(0)) {
-		Drag.setButton(textureNum, UI, UIRects);
+		Frame->setButton(textureNum, UI, UIRects);
 	}
 
 	return menuRecOutline;
@@ -167,9 +167,9 @@ bool RaylibFunctions::allKeysReleased() {
 }
 
 Texture2D* DragSystem::getTextureByNum(int num) {
-	auto it = Drag.getTextureMap()->begin();
+	auto it = getTextureMap()->begin();
 	std::advance(it, num);
-	if (it <= Drag.getTextureMap()->end())
+	if (it <= getTextureMap()->end())
 		return RaylibFunctions::stringToTexture(it->first);
 	return nullptr;
 }
@@ -216,7 +216,7 @@ void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Recta
 	}
 
 	if (textureHeld == "" && CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), rightClickUI)) {
-		rightClickUI = RaylibFunctions::drawRightClickMenu(lastTexture, &lastTexturePos, &camera, UI, UIRects);
+		rightClickUI = RaylibFunctions::drawRightClickMenu(lastTexture, &lastTexturePos, &camera, UI, UIRects, this);
 	}
 
 	if (textureHeld != ""  || !CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), rightClickUI)) {
@@ -225,14 +225,14 @@ void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Recta
 		lastTexturePos = { 0, 0 };
 	}
 
-	if (textureHeld == "" && IsMouseButtonDown(1) && CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), area) ) {
+	if (textureHeld == "" && IsMouseButtonDown(1) && CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), area)) {
 		for (int i = textureMap.size() - 1; i >= 0; --i) {
 			auto it = std::next(textureMap.begin(), i);
-			Texture2D* texture = Drag.getTextureByNum(i);
+			Texture2D* texture = getTextureByNum(i);
 			float scale = getScale(i);
 			if (CheckCollisionPointRec({ GetScreenToWorld2D(GetMousePosition(), camera).x , GetScreenToWorld2D(GetMousePosition(), camera).y },
 										{ it->second.x + 5, it->second.y + 5, float(texture->width * scale), float(texture->height * scale) })) {  // I don't know why we do -5, I have been trying with +5 and that mistake costed me 2 hours and my motivation // well put it at the mouse pos not the rect pos, im dumb // * 1.25 idk why // Tip: don't take textures from the wrong texture map // This is the worst line of code with the most bugs and the most comments, please just delete this the pain I suffered alredy is enough
-				rightClickUI = RaylibFunctions::drawRightClickMenu(i, &it->second, &camera, UI, UIRects);
+				rightClickUI = RaylibFunctions::drawRightClickMenu(i, &it->second, &camera, UI, UIRects, this);
 				lastTexture = i;
 				lastTexturePos = it->second;
 				break;
@@ -273,15 +273,15 @@ void DragSystem::setButton(int texture, std::vector<std::string> UI, Rectangle U
 			}
 		}
 	}
-	auto it = Drag.getTextureMap()->begin();
+	auto it = getTextureMap()->begin();
 	std::advance(it, texture);
 	buttonTexture[texture] = textureHeld;
 }
 
 void DragSystem::removeElementByNum(const int num) {
-	auto it = Drag.getTextureMap()->begin();
+	auto it = getTextureMap()->begin();
 	std::advance(it, num);
-	if (it != Drag.getTextureMap()->end())
+	if (it != getTextureMap()->end())
 		textureMap.erase(it);
 	if (num < scales.size())
 		scales.erase(scales.begin() + num);

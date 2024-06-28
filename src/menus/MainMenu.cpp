@@ -9,7 +9,6 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
-#include <RaylibAdditions.hpp>
 
 int RoomClass::mainMenu() {
 
@@ -38,6 +37,7 @@ int RoomClass::mainMenu() {
 			auto it = std::next(buttonMap.begin(), i);
 			if (it->second.state == 2) {
 				if (it->first == "StartButton") {
+					MainRoom.Frames.push_back(DragSystem());
 					Room.setRoomID(1);
 					break;
 				}
@@ -47,8 +47,9 @@ int RoomClass::mainMenu() {
 				}
 				if (it->first == "LoadGUIButton") {
 					std::string path = FileSystemFunctions::getSaveLocation();
-					if(!FileSystemFunctions::importFromFile(path)) {
-						Rectangle rect = Rectangle{(float(GetScreenWidth()) / 2.0) - 200, (float(GetScreenHeight()) / 2.0) - 50, 400, 100};
+					std::pair<std::vector<RaylibAdditions::FrameClass>, std::vector<std::vector<std::string>>> loadedThing = FileSystemFunctions::importFromFile(path);
+					if (loadedThing.first.size() == 0) {
+						Rectangle rect = Rectangle{(float(GetScreenWidth()) / 2.0f) - 200.0f, (float(GetScreenHeight()) / 2.0f) - 50.0f, 400.0f, 100.0f};
 						BeginDrawing();
                         std::string error = "Error loading file";
 						RaylibAdditions::drawRectWOutlineWText(rect, 10, GRAY, RED, error, 20, BLACK);
@@ -56,6 +57,20 @@ int RoomClass::mainMenu() {
 						WaitTime(2); // This is dumb, please fix
 						continue; 
 					}
+					
+					// make this conversion in the loading functions instead of here, idk why I did it here // yes im writing this will still working on it here
+					for (int j = 0; j < loadedThing.first.size(); j++) {
+						DragSystem newDrag = DragSystem();
+
+						std::vector<std::pair<std::string, Vector2>> textureList;
+						for (int k = 0; k < loadedThing.second.at(j).size(); k++) 
+							textureList.push_back({loadedThing.second.at(j).at(k), loadedThing.first.at(j).texturePos.at(k)});
+						newDrag.setTextureMap(textureList);
+
+						newDrag.setScaleArray(loadedThing.first.at(j).textureScales);
+						MainRoom.Frames.push_back(newDrag);
+					}
+					
 					Room.setRoomID(1);
 					break;
 				}

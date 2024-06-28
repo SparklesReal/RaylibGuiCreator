@@ -2,6 +2,9 @@
 #include <unordered_map>
 #include <raylib.h>
 #include <string>
+#include <vector>
+
+#include "../RaylibFunctions.h"
 
 class RoomClass {
 private:
@@ -21,5 +24,6 @@ class MainRoomClass {
 private:
 public:
 	Vector2 size = Vector2();
+	std::vector<DragSystem> Frames;
 };
 extern MainRoomClass MainRoom;
