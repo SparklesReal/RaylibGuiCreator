@@ -9,8 +9,6 @@
 #include <string>
 #include <RaylibAdditions.hpp>
 
-DragSystem Drag;
-
 int RoomClass::mainRoom() {
 	Camera2D camera = RaylibFunctions::createCamera();
 
@@ -51,6 +49,7 @@ int RoomClass::mainRoom() {
 	int keyboardInput = 0;
 	std::string posString;
 	bool updateCam = true;
+	int currentFrame = 0;
 
 	while (getRoomID() == 1) {
 		if (!updateCam && RaylibFunctions::allKeysReleased())
@@ -87,8 +86,9 @@ int RoomClass::mainRoom() {
 			if (it->second.state != 0) {
 				if (it->first == "BackButton" && it->second.state == 2) {
 					setRoomID(0);
-					Drag.clearMap();
-					break;
+					MainRoom.size = { 0, 0 };
+					MainRoom.Frames.clear();
+					return 0;
 				}
 
 				if (it->first == "xInput" && it->second.state == 1) {
@@ -128,7 +128,7 @@ int RoomClass::mainRoom() {
 					std::string saveLocation = FileSystemFunctions::setSaveLocation();
 					if (saveLocation == "") 
 						break;
-					FileSystemFunctions::exportToFile(rectangles[1], saveLocation);
+					FileSystemFunctions::exportToFile(rectangles[1], saveLocation, &MainRoom.Frames);
 				}
 
 			}
@@ -164,13 +164,13 @@ int RoomClass::mainRoom() {
 		DrawRectangleLinesEx(rectangles[0], 5, RAYWHITE);
 
 		EndMode2D();
-		Drag.update(currentUI, UIRects, rectangles[1], camera);
+		MainRoom.Frames.at(currentFrame).update(currentUI, UIRects, rectangles[1], camera);
 		RaylibFunctions::drawUI(currentUI, UIRects, sizeof(UIRects) / sizeof(UIRects[0]), pageNum, triangles);
 		EndDrawing();
 
 		if (WindowShouldClose()) {
 			std::string saveName = "Autosave.gui"; // Do not overwrite autosave, please fix :)
-			FileSystemFunctions::exportToFile(rectangles[1], saveName);
+			FileSystemFunctions::exportToFile(rectangles[1], saveName, &MainRoom.Frames);
 			return 1;
 		}
 	}
