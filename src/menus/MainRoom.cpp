@@ -12,9 +12,10 @@
 int RoomClass::mainRoom() {
 	Camera2D camera = RaylibFunctions::createCamera();
 
-	Rectangle rectangles[2]{
+	Rectangle rectangles[3]{
 		{ 0, 0, MainRoom.size.x + 10, MainRoom.size.y + 10 }, // xPos, yPos, RecWidth, RecHeight
-		{ rectangles[0].x + 5, rectangles[0].y + 5, MainRoom.size.x, MainRoom.size.y }
+		{ rectangles[0].x + 5, rectangles[0].y + 5, MainRoom.size.x, MainRoom.size.y },
+		{ 1750, 0, 120, 100 }
 	}; // Btw this is stupid and super hard to understand and I should just rewrite this but eh // Buttons are rewritten atleast
 
 	std::unordered_map<std::string, RaylibAdditions::ButtonClass> buttonMap{ // Eh array might be better, I don't know how much more memory this uses
@@ -42,6 +43,15 @@ int RoomClass::mainRoom() {
 		{190, 1040}
 	};
 
+	Vector2 frameTriangles[6]{
+		{1750, 25},
+		{1700, 50},
+		{1750, 75},
+		{1870, 25},
+		{1920, 50},
+		{1870, 75}
+	};
+
 	int pageNum = 1;
 	std::vector<std::string> currentUI = RaylibFunctions::getUITextures(pageNum);
 
@@ -62,6 +72,10 @@ int RoomClass::mainRoom() {
 		RaylibAdditions::drawButton(&buttonMap.at("BackButton"));
 		RaylibAdditions::drawButton(&buttonMap.at("UpdateButton"));
 		RaylibAdditions::drawButton(&buttonMap.at("SaveButton"));
+		DrawTriangle(frameTriangles[0], frameTriangles[1], frameTriangles[2], RAYWHITE);
+		DrawTriangle(frameTriangles[3], frameTriangles[5], frameTriangles[4], RAYWHITE);
+		std::string currentFrameString = std::to_string(currentFrame);
+		RaylibAdditions::drawTextCenterRect(rectangles[2], currentFrameString, 50, RAYWHITE);
 
 		if (xInput == "") // Todo: Better implementation or just move to function to make it look good atleast
 			buttonMap.at("xInput").text = "Enter width";
@@ -142,7 +156,6 @@ int RoomClass::mainRoom() {
 		}
 
 		if (IsMouseButtonPressed(0) && RaylibFunctions::getAmountOfPages() != 0) {
-
 			if (CheckCollisionPointTriangle(GetMousePosition(), triangles[0], triangles[1], triangles[2])) {
 				if (pageNum > 1)
 					pageNum--;
@@ -156,10 +169,20 @@ int RoomClass::mainRoom() {
 				else
 					pageNum = 1;
 			}
-
 			currentUI = RaylibFunctions::getUITextures(pageNum);
 		}
 
+		if (IsMouseButtonPressed(0)) {
+			if (CheckCollisionPointTriangle(GetMousePosition(), frameTriangles[0], frameTriangles[1], frameTriangles[2]) && currentFrame > 0) {
+				currentFrame--;
+			}
+
+			if (CheckCollisionPointTriangle(GetMousePosition(), frameTriangles[3], frameTriangles[5], frameTriangles[4])) {
+				currentFrame++;
+				if (MainRoom.Frames.size() <= currentFrame)
+					MainRoom.Frames.push_back(DragSystem());
+			}
+		}
 
 		DrawRectangleLinesEx(rectangles[0], 5, RAYWHITE);
 
