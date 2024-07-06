@@ -24,6 +24,7 @@ int RoomClass::mainRoom() {
 		{ "yInput",			RaylibAdditions::ButtonClass(Rectangle{ 800, 0, 300, 100 }, "", 40, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
 		{ "UpdateButton",	RaylibAdditions::ButtonClass(Rectangle{ 1100, 0, 300, 100 }, "Update", 40, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
 		{ "SaveButton",		RaylibAdditions::ButtonClass(Rectangle{1400, 0, 300, 100 }, "Save", 40, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
+		{ "CopyButton",		RaylibAdditions::ButtonClass(Rectangle{1400, 100, 520, 100 }, "Duplicate frame to next frame", 30, RAYWHITE, DARKGRAY, BLACK, 10, 1) },
 	}; 
 
 	Rectangle UIRects[]{
@@ -72,6 +73,7 @@ int RoomClass::mainRoom() {
 		RaylibAdditions::drawButton(&buttonMap.at("BackButton"));
 		RaylibAdditions::drawButton(&buttonMap.at("UpdateButton"));
 		RaylibAdditions::drawButton(&buttonMap.at("SaveButton"));
+		RaylibAdditions::drawButton(&buttonMap.at("CopyButton"));
 		DrawTriangle(frameTriangles[0], frameTriangles[1], frameTriangles[2], RAYWHITE);
 		DrawTriangle(frameTriangles[3], frameTriangles[5], frameTriangles[4], RAYWHITE);
 		std::string currentFrameString = std::to_string(currentFrame);
@@ -143,6 +145,11 @@ int RoomClass::mainRoom() {
 					if (saveLocation == "") 
 						break;
 					FileSystemFunctions::exportToFile(rectangles[1], saveLocation, &MainRoom.Frames);
+				}
+
+				if (it->first == "CopyButton" && it->second.state == 2) {
+					MainRoom.Frames.insert(MainRoom.Frames.begin() + currentFrame + 1, DragSystem{MainRoom.Frames.at(currentFrame)});
+					currentFrame++;
 				}
 
 			}
