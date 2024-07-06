@@ -1,7 +1,7 @@
 #include "room.h"
 
 #include "../Functions.h"
-#include "../window.h"
+#include "../Window.hpp"
 #include "../RaylibFunctions.h"
 
 #include <RaylibAdditions.hpp>

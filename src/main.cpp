@@ -1,12 +1,13 @@
 #include <raylib.h>
 #include <iostream>
 #include <unordered_map>
+#include <RaylibAdditions.hpp>
 
-#include "window.h"
+#include "Window.hpp"
 #include "menus/room.h"
 #include "RaylibFunctions.h"
 
-ProgramWindowClass Window (1920, 1080, "GUI creator for Raylib");
+RaylibAdditions::WindowClass Window("GUI creator for Raylib", 1920, 1080);
 RoomClass Room;
 MainRoomClass MainRoom;
 TextureMapClass TextureMap;
