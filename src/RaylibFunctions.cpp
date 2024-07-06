@@ -189,8 +189,6 @@ void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Recta
 	if (IsMouseButtonReleased(0) && CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), area) && textureHeld != "") {
 		Texture2D texture = *RaylibFunctions::stringToTexture(textureHeld);
 		Vector2 mousePos = Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), camera), { 5,5 }); // 5,5 due to outline // make it a var or something to not need comments
-		mousePos.x = std::round(mousePos.x);
-		mousePos.y = std::round(mousePos.y);
 		Vector2 vector = Vector2Subtract({ area.width, area.height }, Vector2Add(mousePos, { float(texture.width * scale), float(texture.height * scale) }));
 		if (vector.x >= 0 && vector.y >= 0) {
 			textureMap.push_back(std::pair<std::string, Vector2>{textureHeld, mousePos});
@@ -244,7 +242,7 @@ void DragSystem::update(std::vector<std::string> UI, Rectangle UIRects[5], Recta
 		DrawTextureEx(*texture, GetMousePosition(), 0, scale * camera.zoom, RAYWHITE);
 		if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), area)) {
 			Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
-			Rectangle rect{std::round(mousePos.x), std::round(mousePos.y), texture->width * scale, texture->height * scale}; // xPos, yPos, RecWidth, RecHeight
+			Rectangle rect{mousePos.x, mousePos.y, texture->width * scale, texture->height * scale}; // xPos, yPos, RecWidth, RecHeight
 			BeginMode2D(camera);
 			DrawRectangleLinesEx(rect, 1, RAYWHITE);
 			EndMode2D();
